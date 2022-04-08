@@ -24,7 +24,7 @@ int main(){
 }
 
 void* run1(void* param){
-    size_t value = (size_t)param;
+    size_t value = (size_t)git aparam;
     printf("Hello world! %zu\n", value);
     return NULL;
 }
