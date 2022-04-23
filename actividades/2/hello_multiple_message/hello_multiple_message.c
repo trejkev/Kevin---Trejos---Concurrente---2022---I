@@ -11,6 +11,7 @@ int create_threads(size_t thread_count);
 void* run(void*);
 
 typedef struct shared_data {
+    char message[6];
     size_t thread_count;
 } shared_data_t;
 
@@ -59,6 +60,7 @@ int create_threads(size_t thread_count) {
             for (size_t i = 0; i < thread_count; ++i) {
                 pthread_join(threads[i], NULL);
             }
+            printf("Shared message is: %s\n", shared_data->message);
 
             free(private_data);
             free(shared_data);
@@ -84,8 +86,10 @@ void* run(void* params) {
     private_data_t* data = (private_data_t*)params;
     if (data->thread_num %2 == 0) {
         sscanf("hello", "%s", data->message);
+        sscanf("hello", "%s", data->shared_data->message);
     } else {
         sscanf("world", "%s", data->message);
+        sscanf("world", "%s", data->shared_data->message);
     }
     printf("%zu : %s\n", data->thread_num, data->message);
     return NULL;
