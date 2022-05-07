@@ -7,16 +7,16 @@ void** create_matrix_value(size_t row_count,
 void free_matrix_value(const size_t row_count, void** matrix);
 
 game_t* read_matrix(FILE* fptr) {
-    game_t* game = malloc(sizeof(game_t));
-    int program_length = 3;
+    game_t* game = calloc(1, sizeof(game_t));  // Creates initial game
+    int program_length = 3;  // Initializes program length
     int counter = 0;
     while (counter <= program_length) {
       if (counter == 0) {
         fscanf(fptr, "%lu", &game->id);  // Reads and saves game ID
         printf("DEBUG: Game id is %lu \n", game->id);
       } else if (counter == 1) {
-        fscanf(fptr, "%i", &game->remaining_depth);  // Saves game depth
-        printf("DEBUG: Game depth is %i \n", game->remaining_depth);
+        fscanf(fptr, "%i", &game->depth);  // Saves game depth
+        printf("DEBUG: Game depth is %i \n", game->depth);
       } else if (counter == 2) {
         fscanf(fptr, "%i", &game->gamezone_num_rows);  // Saves game depth
         printf("DEBUG: Game rows are %i \n", game->gamezone_num_rows);
@@ -51,12 +51,16 @@ game_t* read_matrix(FILE* fptr) {
     return game;
 }
 
-void destroy_matrix(game_t* game) {
+void destroy_matrix(game_t* game_record) {
     // Release memory used by gamezone and figures
-    free_matrix_value(game->gamezone_num_rows, (void**)game->gamezone);
-    free_matrix_value(game->num_figures, (void**)game->figures);
-    free(game);  // Release game record
-    printf("DEBUG: Matrices destroyed \n");
+    free_matrix_value(game_record->gamezone_num_rows, 
+      (void**)game_record->gamezone);
+    printf("DEBUG: Released gamezone\n");
+    free_matrix_value(game_record->num_figures, 
+      (void**)game_record->figures);
+    printf("DEBUG: Released figures\n");
+    free(game_record);  // Release game record
+    printf("DEBUG: Released game record\n");
 }
 
 void** create_matrix_value(size_t row_count,

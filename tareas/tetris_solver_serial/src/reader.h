@@ -10,7 +10,7 @@
 
 typedef struct game {
     uint64_t id;
-    int remaining_depth;
+    int depth;
     int gamezone_num_rows;
     int gamezone_num_cols;
     char** gamezone;
