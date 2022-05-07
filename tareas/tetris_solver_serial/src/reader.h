@@ -5,14 +5,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 
-typedef struct matrix {
-    int num_rows;
-    int num_cols;
-    char** value;
-} matrix_t;
+typedef struct game {
+    uint64_t id;
+    int remaining_depth;
+    int gamezone_num_rows;
+    int gamezone_num_cols;
+    char** gamezone;
+    int num_figures;
+    char** figures;
+} game_t;
 
-matrix_t* read_matrix(FILE* fptr);
-void destroy_matrix(matrix_t* matrix);
+game_t* read_matrix(FILE* fptr);
+void destroy_matrix(game_t* matrix);
 
 #endif
