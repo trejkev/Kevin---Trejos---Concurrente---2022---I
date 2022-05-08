@@ -5,6 +5,7 @@
 
 int find_best_score(game_t* matrix, int current_level, int hor_position, 
     int rotation, game_t** best_game, int best_score);
+game_t* game_cloner(game_t* original_game);
 
 int main() {
     FILE* fptr = stdin;
@@ -50,14 +51,16 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    // Start at  level 0
+    // Start at level 0
     int best_score = matrix->gamezone_num_rows;  // Worst score as init
     int score = 500;
     for (int i = 0; i < matrix->gamezone_num_cols; i++) {
         char* figure = matrix->figures[0];
         int num_rotations = get_tetris_figure_num_rotations(figure[0]);
+        // Level 0
         for(int j = 0; j < num_rotations; j++) {
-            score = find_best_score(matrix,0,i,j,best_game,best_score);
+            printf("DEBUG: col %i, figure %c, rotation %i\n",i,figure[0],j);
+            score = find_best_score(matrix,0,i,j,(*bg),best_score);
         }
         if (score < best_score) {
             best_score = score;
@@ -79,8 +82,31 @@ int main() {
     return EXIT_SUCCESS;
 }
 
+
+
+
+
 int find_best_score(game_t* matrix, int current_level, int hor_position, 
     int rotation, game_t** best_game, int best_score) {
     printf("DEBUG: Current level is %i \n", current_level);
+    // game_t* clone = game_cloner(matrix);
+    // printf("DEBUG: Clone created\n");
+    // destroy_matrix(clone);
+    // printf("DEBUG: Clone destroyed \n");
+
     return 11;
     }
+
+
+game_t* game_cloner(game_t* original_game) {
+    game_t* cloned_game = (game_t*)calloc(1,sizeof(game_t));
+    cloned_game->id = original_game->id;
+    cloned_game->depth = original_game->depth;
+    cloned_game->gamezone_num_rows = original_game->gamezone_num_rows;
+    cloned_game->gamezone_num_cols = original_game->gamezone_num_cols;
+    cloned_game->gamezone = original_game->gamezone;
+    cloned_game->num_figures = original_game->num_figures;
+    cloned_game->figures = original_game->figures;
+    return cloned_game;
+}
+
