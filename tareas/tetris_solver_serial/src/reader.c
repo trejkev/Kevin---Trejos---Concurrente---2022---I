@@ -53,10 +53,10 @@ game_t* read_matrix(FILE* fptr) {
 
 void destroy_matrix(game_t* game_record) {
     // Release memory used by gamezone and figures
-    free_matrix_value(game_record->gamezone_num_rows, 
+    free_matrix_value(game_record->gamezone_num_rows,
       (void**)game_record->gamezone);
     // printf("DEBUG: Released gamezone\n");
-    free_matrix_value(game_record->num_figures, 
+    free_matrix_value(game_record->num_figures,
       (void**)game_record->figures);
     // printf("DEBUG: Released figures\n");
     free(game_record);  // Release game record
