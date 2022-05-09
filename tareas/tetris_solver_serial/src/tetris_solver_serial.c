@@ -12,6 +12,7 @@ game_t* game_cloner(game_t* original_game);
 void figure_allocator(game_t* matrix, char* letter, int x_position,
     int rotation);
 int score_calculator(char** gamezone);
+game_t* figure_stamp(game_t* matrix, figure_t* figure, int d_row, int l_col);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,6 +31,13 @@ int main() {
 
     game_t *matrix = read_matrix(fptr);  // Saves the document into record
 
+    printf("DEBUG: Basegame is: \n");
+    for (int i = 0; i < 10; i++) {
+        printf("DEBUG: %i  %s\n", i, matrix->gamezone[i]);
+    }
+    for (int i = 10; i < matrix->gamezone_num_rows; i++) {
+        printf("DEBUG: %i %s\n", i, matrix->gamezone[i]);
+    }
     game_t* best_game[matrix->depth + 1];
     // Best game memory allocated
     for (int i = 0; i <= matrix->depth; i++) {
@@ -90,7 +98,7 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
             }
         }
     }
-    // exit(0);
+    exit(0);
     return 11;
 }
 
@@ -125,9 +133,12 @@ void figure_allocator(game_t* matrix, char* letter, int x_position,
                     printf("Starting row is %i: ", starting_row);
                     // Place the figure in the row before
                     printf("Can place the figure in row %i, column %i. ",
-                        starting_row + fut->height - 2, x_position);
+                        starting_row + fut->height - 1, x_position);
                     printf("Figure is %c, rotation is %i\n",
                         letter[0], rotation);
+                    figure_stamp(matrix, fut, starting_row + fut->height - 1,
+                        x_position);
+
                     abbort = true;
                 }
                 p++;
@@ -146,10 +157,33 @@ void figure_allocator(game_t* matrix, char* letter, int x_position,
             starting_row + fut->height - 1, x_position);
         printf("Figure is %c, rotation is %i\n",
             letter[0], rotation);
+        figure_stamp(matrix, fut, starting_row + fut->height - 1,
+            x_position);
 
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+game_t* figure_stamp(game_t* matrix, figure_t* figure, int d_row, int l_col) {
+    for (int q = 0; q < figure->width; q++) {
+        for (int p = 0; p < figure->height; p++) {
+            if (figure->value[p][q] != '0') {
+                matrix->gamezone[d_row-figure->height+p][l_col+q] = 
+                    figure->value[p][q];
+            }
+        }
+    }
+    for(int i = 0; i < 10; i++) {
+        printf("DEBUG: %i  %s\n",i,matrix->gamezone[i]);
+    }
+    for(int i = 10; i < matrix->gamezone_num_rows; i++) {
+        printf("DEBUG: %i %s\n",i,matrix->gamezone[i]);
+    }
+    printf("\n\n");
+    return matrix;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 int score_calculator(char** gamezone) {
     return 10;
 }
