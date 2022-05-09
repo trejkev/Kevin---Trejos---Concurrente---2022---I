@@ -18,11 +18,11 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
                 printf("DEBUG: Actual rotation is %i\n", j);
                 figure_allocator(matrix, figure, i, j);
                 find_best_score(matrix, current_level+1, best_game, best_score);
-                // int score = find_best_score(matrix, current_level+1,
-                //     best_game, best_score);
-                // if (score < best_score) {
-                //     printf("DEBUG: New best score is %i \n", best_score);
-                // }
+                int score = find_best_score(matrix, current_level+1,
+                    best_game, best_score);
+                if (score < best_score) {
+                    printf("DEBUG: New best score is %i \n", best_score);
+                }
             }
         }
     }
@@ -122,7 +122,6 @@ int score_calculator(game_t* matrix) {
         int a = 0;
         while (a < matrix->gamezone_num_cols && abort == false) {
             if (matrix->gamezone[i][a] != '0') {
-                printf("I am here, row is %i, col is %i\n", i, a);
                 score = matrix->gamezone_num_cols - a;
                 abort = true;
             }

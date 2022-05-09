@@ -20,6 +20,9 @@ int main() {
 
     game_t *matrix = read_matrix(fptr);  // Saves the document into record
 
+    char** gamezone_PG = (char**)calloc(matrix->gamezone_num_rows, 
+        matrix->gamezone_num_cols*sizeof(char));
+
     printf("DEBUG: Basegame is: \n");
     for (int i = 0; i < 10; i++) {
         printf("DEBUG: %i  %s\n", i, matrix->gamezone[i]);
