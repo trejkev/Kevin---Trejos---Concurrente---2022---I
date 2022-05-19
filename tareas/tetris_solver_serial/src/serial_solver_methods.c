@@ -4,61 +4,91 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 int find_best_score(game_t* matrix, int current_level, game_t** best_game,
-    int best_score) {
-    int score = 0;
+    int* best_score) {
+    int score = 0; // worst score is zero, all columns filled
+
+    // Getting memory space for the clone
+    game_t* clone = calloc(1, sizeof(game_t)); 
+    clone->gamezone = (char**)create_matrix_value(matrix->gamezone_num_rows,
+        matrix->gamezone_num_cols + 1, sizeof(char));
+    clone->figures = (char**)create_matrix_value(matrix->num_figures, 
+        1, sizeof(char)); 
+
+    // Cloning the values
+    clone->id = matrix->id;
+    clone->depth = matrix->depth;
+    clone->gamezone_num_rows = matrix->gamezone_num_rows;
+    clone->gamezone_num_cols = matrix->gamezone_num_cols;
+    for (int i = 0; i < clone->gamezone_num_rows; i++) {
+        for (int k = 0; k < clone->gamezone_num_cols; k++)
+        clone->gamezone[i][k] = matrix->gamezone[i][k];
+    }
+    clone->num_figures = matrix->num_figures;
+    for (int i = 0; i < clone->num_figures; i++) {
+        *clone->figures[i] = *matrix->figures[i];
+    }
+
     if (current_level == matrix->depth + 1) {
-        score = score_calculator(matrix);
+        int score = score_calculator(matrix);
+        if (score < *best_score) {
+            *best_score = score;
+            printf("DEBUG: New best score is %d \n", *best_score);
+            // exit(0);
+        }
     } else {
         printf("DEBUG: Current level is %i \n", current_level);
-        for (int i = 0; i < matrix->gamezone_num_cols; i++) {
-            printf("DEBUG: Actual column is %i\n", i);
-            char* figure = matrix->figures[current_level];
+        for (int col = 0; col < clone->gamezone_num_cols; col++) {
+            printf("DEBUG: Actual column is %i\n", col);
+            char* figure = clone->figures[current_level];
             int num_rotations = get_tetris_figure_num_rotations(figure[0]);
-            for (int j = 0; j < num_rotations; j++) {
-                printf("DEBUG: Actual rotation is %i\n", j);
-                figure_allocator(matrix, figure, i, j);
-                find_best_score(matrix, current_level+1, best_game, best_score);
-                int score = find_best_score(matrix, current_level+1,
-                    best_game, best_score);
-                if (score < best_score) {
-                    printf("DEBUG: New best score is %i \n", best_score);
+            for (int rot = 0; rot < num_rotations; rot++) {
+                printf("DEBUG: Actual rotation is %i\n", rot);
+                printf("DEBUG: Figure is %c\n",figure[0]);
+                int row = figure_allocator(clone, figure, col, rot);
+                find_best_score(clone, current_level+1, best_game, best_score);
+                if (row != -1) {
+                    figure_remover(clone, figure, col, row, rot);
+                }
+                // score = find_best_score(clone, current_level+1,
+                //     best_game, best_score);
+                if (score < *best_score) {
+                    printf("Best score is %d \n", *best_score);
                 }
             }
         }
     }
-    printf("Actual score is %i\n", score);
+    // printf("Actual score is %i\n", score);
     // exit(0);
-    return score;
+    // return score;
+    return *best_score;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void figure_allocator(game_t* matrix, char* letter, int x_position,
+int figure_allocator(game_t* matrix, char* letter, int x_position,
     int rotation) {
     figure_t* fut = get_tetris_figure(letter[0], rotation);
+    int floor_row = -1;
     int starting_row = 0;
-    bool abort = false;
+    bool place_figure = false;
     // Algorithm shall find a place where figure values over 0 are not filled
     // While figure into test boundaries
-    while (starting_row + fut->height < matrix->gamezone_num_rows &&
-        x_position + fut->width < matrix->gamezone_num_cols &&
-        abort == false) {
+    while (starting_row + fut->height - 1 < matrix->gamezone_num_rows &&
+        x_position + fut->width - 1 < matrix->gamezone_num_cols &&
+        place_figure == false) {
         /* check matching between non zeros from figure with zeros in gamezone
         if non-0 from figure match with zeros from gamezone keep getting down
         if last condition fails rewind to last condition and place the figure */
-        int q = 0;
-        while (q < fut->width && abort == false) {
-            int p = 0;
-            while (p < fut->height && abort == false) {
-                char figure_value = fut->value[p][q];
-                char game_val = matrix->gamezone[starting_row+p][x_position+q];
-                if (figure_value != '0' && game_val == '0') {
-                    abort = false;
-                // Collision condition, thus place the unit
-                } else if (figure_value != '0' && game_val != '0' &&
+        int fig_width = 0;
+        while (fig_width < fut->width && place_figure == false) {
+            int fig_height = 0;
+            while (fig_height < fut->height && place_figure == false) {
+                char figure_value = fut->value[fig_height][fig_width];
+                // printf("DEBUG: gamezone pos row %i, col %i\n", starting_row + fig_height, x_position + fig_width);
+                char game_val = matrix->gamezone[starting_row + fig_height]
+                    [x_position + fig_width];
+                if (figure_value != '0' && game_val != '0' &&
                     starting_row >= fut->height-1 &&
                     starting_row + fut->height - 2 >= 0 ) {
-                    printf("Figure value %c, gamezone value %c\n",
-                        figure_value, game_val);
                     printf("DEBUG: Starting row is %i: ", starting_row);
                     // Place the figure in the row before
                     printf("Can place the figure in row %i, column %i. ",
@@ -67,18 +97,20 @@ void figure_allocator(game_t* matrix, char* letter, int x_position,
                         letter[0], rotation);
                     figure_stamp(matrix, fut, starting_row + fut->height - 2,
                         x_position);
-
-                    abort = true;
+                    floor_row = starting_row + fut->height - 2;
+                    place_figure = true;
                 }
-                p++;
+                fig_height++;
             }
-            q++;
+            fig_width++;
         }
         starting_row++;
     }
+    starting_row--;
     // Position empty to the bottom, never reached a collision condition
-    if (abort == false &&
-        x_position + fut->width -1 < matrix->gamezone_num_cols) {
+    if (place_figure == false &&
+        x_position + fut->width - 1 < matrix->gamezone_num_cols &&
+        starting_row + fut->height - 2 < matrix->gamezone_num_rows) {
         printf("DEBUG: No collision happened\n");
         printf("DEBUG: Starting row is %i: ", starting_row);
         // Place the figure in the row before
@@ -88,11 +120,15 @@ void figure_allocator(game_t* matrix, char* letter, int x_position,
             letter[0], rotation);
         figure_stamp(matrix, fut, starting_row + fut->height - 1,
             x_position);
-    }
+        floor_row = starting_row + fut->height - 1;
+        // exit(0);
+    } 
+    return floor_row;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-game_t* figure_stamp(game_t* matrix, figure_t* figure, int d_row, int l_col) {
+void figure_stamp(game_t* matrix, figure_t* figure, int d_row, int l_col) {
+// game_t* figure_stamp(game_t* matrix, figure_t* figure, int d_row, int l_col) {
     for (int q = 0; q < figure->width; q++) {
         for (int p = 0; p < figure->height; p++) {
             if (figure->value[p][q] != '0') {
@@ -110,37 +146,48 @@ game_t* figure_stamp(game_t* matrix, figure_t* figure, int d_row, int l_col) {
         printf("DEBUG: %i %s\n", i, matrix->gamezone[i]);
     }
     printf("\n\n");
-    return matrix;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 int score_calculator(game_t* matrix) {
-    int score = 0;
+    int score;
     bool abort = false;
-    int i = 0;
-    while (i < matrix->gamezone_num_rows && abort == false) {
-        int a = 0;
-        while (a < matrix->gamezone_num_cols && abort == false) {
-            if (matrix->gamezone[i][a] != '0') {
-                score = matrix->gamezone_num_cols - a;
+    int row_scan = 0;
+    while (row_scan < matrix->gamezone_num_rows && abort == false) {
+        int col_scan = 0;
+        while (col_scan < matrix->gamezone_num_cols && abort == false) {
+            // Looks for last zero per row
+            if (matrix->gamezone[row_scan][col_scan] != '0') {
+                score = matrix->gamezone_num_rows - row_scan;
                 abort = true;
             }
-            a++;
+            col_scan++;
         }
-        i++;
+        row_scan++;
     }
     return score;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Taken from https://www.techiedelight.com/implement-substr-function-c
-char* substr(const char *src, int m, int n) {
-    // get the length of the destination string
-    int len = n - m;
-    // allocate (len + 1) chars for destination (+1 for extra null character)
-    char *dest = (char*)malloc(sizeof(char) * (len + 1));
-    // start with m'th char and copy `len` chars into the destination
-    strncpy(dest, (src + m), len);
-    // return the destination string
-    return dest;
+void figure_remover(game_t* matrix, char* letter, int x_position, 
+    int y_position, int rotation) {
+    figure_t* figure = get_tetris_figure(letter[0], rotation);
+    for (int width = 0; width < figure->width; width++) {
+        for (int height = 0; height < figure->height; height++) {
+            if (figure->value[height][width] != '0') {
+                // printf("DEBUG: Removed figure row %i col %i\n",
+                    // y_position - figure->height + 1 + height, 
+                    // x_position + width);
+                matrix->gamezone[y_position - figure->height + 1 + height]
+                    [x_position + width] = '0';
+            }
+        }
+    }
+    for (int i = 0; i < 10; i++) {
+        printf("DEBUG: %i  %s\n", i, matrix->gamezone[i]);
+    }
+    for (int i = 10; i < matrix->gamezone_num_rows; i++) {
+        printf("DEBUG: %i %s\n", i, matrix->gamezone[i]);
+    }
+    printf("\n\n");
 }

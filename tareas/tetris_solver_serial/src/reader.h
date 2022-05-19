@@ -20,5 +20,7 @@ typedef struct game {
 
 game_t* read_matrix(FILE* fptr);
 void destroy_matrix(game_t* matrix);
+void** create_matrix_value(size_t row_count,
+            size_t col_count, size_t element_size);
 
 #endif

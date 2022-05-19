@@ -9,6 +9,20 @@
 
 
 /**
+ * @brief Method to remove the figure into the gamezone
+ * @details Given a figure, a gamezone, and its upper-left corner positioning, 
+ * remove the figure from the gamezone
+ * @param matrix Record containing all the relevant information for the game.
+ * @param letter Actual figure to be placed.
+ * @param x_position Gamezone column (from left to right) to place the figure.
+ * @param y_position Gamezone row (upper row) to place the figure.
+ * @param rotation Actual rotation of the figure to place it.
+ *
+ */
+void figure_remover(game_t* matrix, char* letter, int x_position, 
+    int y_position, int rotation);
+
+/**
  * @brief Recursive method to get the score for the depth requested.
  * @details Given a basegame and a current level, place the figures in the tetris and calculate the game score.
  * @param matrix Record containing all the relevant information for the game.
@@ -19,7 +33,7 @@
  *
  */
 int find_best_score(game_t* matrix, int current_level, game_t** best_game,
-    int best_score);
+    int* best_score);
 
 /**
  * @brief Method to check the deepest place in the gamezone that the figure can fit.
@@ -30,7 +44,7 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
  * @param rotation Actual rotation of the figure to place it.
  *
  */
-void figure_allocator(game_t* matrix, char* letter, int x_position,
+int figure_allocator(game_t* matrix, char* letter, int x_position,
     int rotation);
 
 /**
@@ -52,6 +66,6 @@ int score_calculator(game_t* matrix);
  * @return Gamezone with the figure in place.
  *
  */
-game_t* figure_stamp(game_t* matrix, figure_t* figure, int d_row, int l_col);
+void figure_stamp(game_t* matrix, figure_t* figure, int d_row, int l_col);
 
 #endif

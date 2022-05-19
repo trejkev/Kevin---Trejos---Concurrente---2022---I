@@ -44,13 +44,14 @@ int main() {
     }
 
     // Start at level 0
-    int best_score = matrix->gamezone_num_rows;  // Worst score as init
+    int bs = matrix->gamezone_num_rows;  // Worst score as init
+    int* best_score = &bs;
     int score = 500;
     // Level 0
     score = find_best_score(matrix, 0, (*bg), best_score);
-    if (score < best_score) {
-        best_score = score;
-        printf("DEBUG: Best score is %i \n", best_score);
+    if (score < *best_score) {
+        *best_score = score;
+        printf("DEBUG: Best score is %d \n", *best_score);
     }
 
     // Destroy best games
