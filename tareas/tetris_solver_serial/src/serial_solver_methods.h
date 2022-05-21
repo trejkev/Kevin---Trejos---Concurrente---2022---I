@@ -19,7 +19,7 @@
  * @param rotation Actual rotation of the figure to place it.
  *
  */
-void figure_remover(game_t* matrix, char* letter, int x_position, 
+void figure_remover(game_t* matrix, char* letter, int x_position,
     int y_position, int rotation);
 
 /**
@@ -27,7 +27,7 @@ void figure_remover(game_t* matrix, char* letter, int x_position,
  * @details Given a basegame and a current level, place the figures in the tetris and calculate the game score.
  * @param matrix Record containing all the relevant information for the game.
  * @param current_level Current level being played.
- * @param best_game Record of records pointing to the best game.
+ * @param best_game Pointer to records saving the best game for each level
  * @param best_score Best score recorded in the past.
  * @return Score of the actual path taken.
  *
