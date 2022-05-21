@@ -15,6 +15,7 @@ int main() {
         fprintf(stderr, "Invalid file \n");
         return EXIT_FAILURE;
     } else {
+        fclose(fptr);
         printf("DEBUG: File opened \n");
     }
 
@@ -23,13 +24,13 @@ int main() {
     // char** gamezone_PG = (char**)calloc(matrix->gamezone_num_rows,
     //     matrix->gamezone_num_cols*sizeof(char));
 
-    printf("DEBUG: Basegame is: \n");
-    for (int i = 0; i < 10; i++) {
-        printf("DEBUG: %i  %s\n", i, matrix->gamezone[i]);
-    }
-    for (int i = 10; i < matrix->gamezone_num_rows; i++) {
-        printf("DEBUG: %i %s\n", i, matrix->gamezone[i]);
-    }
+    // printf("DEBUG: Basegame is: \n");
+    // for (int i = 0; i < 10; i++) {
+    //     printf("DEBUG: %i  %s\n", i, matrix->gamezone[i]);
+    // }
+    // for (int i = 10; i < matrix->gamezone_num_rows; i++) {
+    //     printf("DEBUG: %i %s\n", i, matrix->gamezone[i]);
+    // }
     game_t* best_game[matrix->depth + 1];
     // Best game memory allocated
     for (int i = 0; i <= matrix->depth; i++) {
@@ -59,30 +60,34 @@ int main() {
     // Level 0
     find_best_score(matrix, 0, (*bg), best_score, save_best_game);
     printf("DEBUG: Best score is %d\n", *best_score);
-    printf("DEBUG: Basegame\n");
-    for (int row = 0; row < 10; row++) {
-        printf("%i  %s\n", row, matrix->gamezone[row]);
-    }
-    for (int row = 10; row < matrix->gamezone_num_rows; row++) {
-        printf("%i %s\n", row, matrix->gamezone[row]);
-    }
-    printf("\n\n");
-    for (int depth = 0; depth <= matrix->depth; depth++) {
-        printf("DEBUG: Best game level %i\n", depth);
-        for (int row = 0; row < 10; row++) {
-            printf("%i  %s\n", row, (*bg)[depth]->gamezone[row]);
-        }
-        for (int row = 10; row < matrix->gamezone_num_rows; row++) {
-            printf("%i %s\n", row, (*bg)[depth]->gamezone[row]);
-        }
-        printf("\n\n");
-    }
+    
+    // printf("DEBUG: Basegame\n");
+    // for (int row = 0; row < 10; row++) {
+    //     printf("%i  %s\n", row, matrix->gamezone[row]);
+    // }
+    // for (int row = 10; row < matrix->gamezone_num_rows; row++) {
+    //     printf("%i %s\n", row, matrix->gamezone[row]);
+    // }
+    // printf("\n\n");
+    // for (int depth = 0; depth <= matrix->depth; depth++) {
+    //     printf("DEBUG: Best game level %i\n", depth);
+    //     for (int row = 0; row < 10; row++) {
+    //         printf("%i  %s\n", row, (*bg)[depth]->gamezone[row]);
+    //     }
+    //     for (int row = 10; row < matrix->gamezone_num_rows; row++) {
+    //         printf("%i %s\n", row, (*bg)[depth]->gamezone[row]);
+    //     }
+    //     printf("\n\n");
+    // }
 
     // Destroy best games
     for (int i = 0; i <= matrix->depth; i++) {
         printf("DEBUG: Destroying game %i\n", i);
-        destroy_matrix((*bg)[i]);
+        destroy_matrix(best_game[i]);
     }
+
+    // Free decision blocker
+    free(save_best_game);
 
     // Destroy initial game
     destroy_matrix(matrix);
