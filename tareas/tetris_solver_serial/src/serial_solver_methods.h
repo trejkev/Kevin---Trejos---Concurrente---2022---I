@@ -33,7 +33,7 @@ void figure_remover(game_t* matrix, char* letter, int x_position,
  *
  */
 int find_best_score(game_t* matrix, int current_level, game_t** best_game,
-    int* best_score);
+    int* best_score, bool* save_bg);
 
 /**
  * @brief Method to check the deepest place in the gamezone that the figure can fit.

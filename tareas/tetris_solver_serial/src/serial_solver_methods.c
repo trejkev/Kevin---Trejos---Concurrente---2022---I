@@ -4,7 +4,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 int find_best_score(game_t* matrix, int current_level, game_t** best_game,
-    int* best_score) {
+    int* best_score, bool* save_bg) {
     int score = 0; // worst score is zero, all columns filled
 
     // Getting memory space for the clone
@@ -20,21 +20,29 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
     clone->gamezone_num_rows = matrix->gamezone_num_rows;
     clone->gamezone_num_cols = matrix->gamezone_num_cols;
     for (int i = 0; i < clone->gamezone_num_rows; i++) {
-        for (int k = 0; k < clone->gamezone_num_cols; k++)
-        clone->gamezone[i][k] = matrix->gamezone[i][k];
+        for (int k = 0; k < clone->gamezone_num_cols; k++) {
+            clone->gamezone[i][k] = matrix->gamezone[i][k];
+        }
     }
     clone->num_figures = matrix->num_figures;
     for (int i = 0; i < clone->num_figures; i++) {
+        // *clone->figures[i] = *matrix->figures[i];
         *clone->figures[i] = *matrix->figures[i];
     }
 
+    /* Last level + 1, it will realize it reached deepest position requested,
+     * thus, it will compute the metric, and if greater than last best game
+     * (defaulted to max value of the metric), it will replace the best score
+     * and spread a directive to save the last best game found.
+    */
     if (current_level == matrix->depth + 1) {
-        int score = score_calculator(matrix);
+        score = score_calculator(clone);
         if (score < *best_score) {
+            for(int level = 0; level <= clone->depth; level++) {
+                save_bg[level] = true;
+            }
             *best_score = score;
-            printf("DEBUG: New best score is %d \n", *best_score);
-            // exit(0);
-        }
+        } 
     } else {
         printf("DEBUG: Current level is %i \n", current_level);
         for (int col = 0; col < clone->gamezone_num_cols; col++) {
@@ -45,22 +53,54 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
                 printf("DEBUG: Actual rotation is %i\n", rot);
                 printf("DEBUG: Figure is %c\n",figure[0]);
                 int row = figure_allocator(clone, figure, col, rot);
-                find_best_score(clone, current_level+1, best_game, best_score);
-                if (row != -1) {
-                    figure_remover(clone, figure, col, row, rot);
+                score = find_best_score(clone, current_level + 1, best_game, 
+                    best_score, save_bg);
+                // Save best game from level, as directed from deepest level
+                if (save_bg[current_level] == true) {
+                    // Save clone from level into best game for this level
+                    best_game[current_level]->id = clone->id;
+                    best_game[current_level]->depth = clone->depth;
+                    best_game[current_level]->gamezone_num_rows = 
+                        clone->gamezone_num_rows;
+                    best_game[current_level]->gamezone_num_cols =
+                        clone->gamezone_num_cols;
+                    for (int row = 0; row < clone->gamezone_num_rows; row++) {
+                        for (int col = 0; col < clone->gamezone_num_cols; col++) {
+                            best_game[current_level]->gamezone[row][col] =
+                                clone->gamezone[row][col];
+                        }
+                    }
+                    best_game[current_level]->num_figures = clone->num_figures;
+                    for (int fig = 0; fig < clone->num_figures; fig++) {
+                        best_game[current_level]->figures[fig] =
+                            clone->figures[fig];
+                    }
+                    save_bg[current_level] = false; // Block the current saving
+                    
+                    int testInteger;
+                    printf("DEBUG: Best game level %i, score %i, save flag is  %i\n", current_level, score, save_bg[current_level]);
+                    for(int row = 0; row < 10; row++) {
+                        printf("%i  %s\n", row, best_game[current_level]->gamezone[row]);
+                    }
+                    for(int row = 10; row < matrix->gamezone_num_rows; row++) {
+                        printf("%i %s\n", row, best_game[current_level]->gamezone[row]);
+                    }
+                    printf("\n\n");
+                    scanf("%d", &testInteger);
                 }
-                // score = find_best_score(clone, current_level+1,
-                //     best_game, best_score);
-                if (score < *best_score) {
-                    printf("Best score is %d \n", *best_score);
+                if (row != -1) {
+                    // printf("Actual level is %i. ", current_level);
+                    figure_remover(clone, figure, col, row, rot);
                 }
             }
         }
+        printf("DEBUG: Destroying clone from level %i\n", current_level);
+        destroy_matrix(clone);
     }
     // printf("Actual score is %i\n", score);
     // exit(0);
-    // return score;
-    return *best_score;
+    return score;
+    // return *best_score;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +110,9 @@ int figure_allocator(game_t* matrix, char* letter, int x_position,
     int floor_row = -1;
     int starting_row = 0;
     bool place_figure = false;
-    // Algorithm shall find a place where figure values over 0 are not filled
-    // While figure into test boundaries
+    /* Algorithm shall find a place where figure values over 0 are not filled
+     * While figure into test boundaries
+     */
     while (starting_row + fut->height - 1 < matrix->gamezone_num_rows &&
         x_position + fut->width - 1 < matrix->gamezone_num_cols &&
         place_figure == false) {
@@ -89,7 +130,7 @@ int figure_allocator(game_t* matrix, char* letter, int x_position,
                 if (figure_value != '0' && game_val != '0' &&
                     starting_row >= fut->height-1 &&
                     starting_row + fut->height - 2 >= 0 ) {
-                    printf("DEBUG: Starting row is %i: ", starting_row);
+                    // printf("DEBUG: Starting row is %i: ", starting_row);
                     // Place the figure in the row before
                     printf("Can place the figure in row %i, column %i. ",
                         starting_row + fut->height - 2, x_position);
@@ -172,12 +213,11 @@ int score_calculator(game_t* matrix) {
 void figure_remover(game_t* matrix, char* letter, int x_position, 
     int y_position, int rotation) {
     figure_t* figure = get_tetris_figure(letter[0], rotation);
+    printf("DEBUG: Removing figure %c, col %i, row %i, rot %i\n", letter[0],
+        x_position, y_position, rotation);
     for (int width = 0; width < figure->width; width++) {
         for (int height = 0; height < figure->height; height++) {
             if (figure->value[height][width] != '0') {
-                // printf("DEBUG: Removed figure row %i col %i\n",
-                    // y_position - figure->height + 1 + height, 
-                    // x_position + width);
                 matrix->gamezone[y_position - figure->height + 1 + height]
                     [x_position + width] = '0';
             }
