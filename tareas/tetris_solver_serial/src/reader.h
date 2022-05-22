@@ -15,7 +15,7 @@ typedef struct game {
     int gamezone_num_cols;
     char** gamezone;
     int num_figures;
-    char** figures;
+    char* figures;
 } game_t;
 
 game_t* read_matrix(FILE* fptr);

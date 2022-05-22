@@ -5,14 +5,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 int find_best_score(game_t* matrix, int current_level, game_t** best_game,
     int* best_score, bool* save_bg) {
-    int score = 0;
+    int score = 0; 
 
     // Getting memory space for the clone
     game_t* clone = calloc(1, sizeof(game_t));
     clone->gamezone = (char**)create_matrix_value(matrix->gamezone_num_rows,
         matrix->gamezone_num_cols + 1, sizeof(char));
-    clone->figures = (char**)create_matrix_value(matrix->num_figures,
-        1, sizeof(char));
+    // clone->figures = (char**)create_matrix_value(matrix->num_figures,
+    //     1, sizeof(char));
+    clone->figures = (char*) calloc(matrix->num_figures, sizeof(char));
 
     // Cloning the values
     clone->id = matrix->id;
@@ -26,7 +27,9 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
     }
     clone->num_figures = matrix->num_figures;
     for (int i = 0; i < clone->num_figures; i++) {
-        clone->figures[i][0] = matrix->figures[i][0];
+        // printf("Iteration %i", i);
+        clone->figures[i] = matrix->figures[i];
+        // printf("Clone figure is %s", &clone->figures[i]);
     }
 
     /* Last level + 1, it will realize it reached deepest position requested,
@@ -34,18 +37,20 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
      * (defaulted to max value of the metric), it will replace the best score
      * and spread a directive to save the last best game found.
     */
-    if (current_level == matrix->depth + 1) {
+    if (current_level == matrix->depth) {
         score = score_calculator(clone);
         if (score < *best_score) {
-            for (int level = 0; level <= clone->depth; level++) {
+            for (int level = 0; level < clone->depth; level++) {
                 save_bg[level] = true;
             }
             *best_score = score;
         }
     } else {
         for (int col = 0; col < clone->gamezone_num_cols; col++) {
-            char* figure = clone->figures[current_level];
-            int num_rotations = get_tetris_figure_num_rotations(figure[0]);
+            // char* figure = clone->figures[current_level];
+            char figure = clone->figures[current_level];
+            // int num_rotations = get_tetris_figure_num_rotations(figure[0]);
+            int num_rotations = get_tetris_figure_num_rotations(figure);
             for (int rot = 0; rot < num_rotations; rot++) {
                 int row = figure_allocator(clone, figure, col, rot);
                 score = find_best_score(clone, current_level + 1, best_game,
@@ -78,15 +83,18 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
                 }
             }
         }
-        destroy_matrix(clone);
     }
+    destroy_matrix(clone);
     return score;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int figure_allocator(game_t* matrix, char* letter, int x_position,
+// int figure_allocator(game_t* matrix, char* letter, int x_position,
+//     int rotation) {
+int figure_allocator(game_t* matrix, char letter, int x_position,
     int rotation) {
-    figure_t* fut = get_tetris_figure(letter[0], rotation);
+    // figure_t* fut = get_tetris_figure(letter[0], rotation);
+    figure_t* fut = get_tetris_figure(letter, rotation);
     int floor_row = -1;
     int starting_row = 0;
     bool place_figure = false;
@@ -166,9 +174,12 @@ int score_calculator(game_t* matrix) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void figure_remover(game_t* matrix, char* letter, int x_position,
+// void figure_remover(game_t* matrix, char* letter, int x_position,
+//     int y_position, int rotation) {
+void figure_remover(game_t* matrix, char letter, int x_position,
     int y_position, int rotation) {
-    figure_t* figure = get_tetris_figure(letter[0], rotation);
+    // figure_t* figure = get_tetris_figure(letter[0], rotation);
+    figure_t* figure = get_tetris_figure(letter, rotation);
     for (int width = 0; width < figure->width; width++) {
         for (int height = 0; height < figure->height; height++) {
             if (figure->value[height][width] != '0') {

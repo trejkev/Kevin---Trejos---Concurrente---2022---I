@@ -19,7 +19,9 @@
  * @param rotation Actual rotation of the figure to place it.
  *
  */
-void figure_remover(game_t* matrix, char* letter, int x_position,
+// void figure_remover(game_t* matrix, char* letter, int x_position,
+//     int y_position, int rotation);
+void figure_remover(game_t* matrix, char letter, int x_position,
     int y_position, int rotation);
 
 /**
@@ -44,7 +46,9 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
  * @param rotation Actual rotation of the figure to place it.
  *
  */
-int figure_allocator(game_t* matrix, char* letter, int x_position,
+// int figure_allocator(game_t* matrix, char* letter, int x_position,
+//     int rotation);
+int figure_allocator(game_t* matrix, char letter, int x_position,
     int rotation);
 
 /**
