@@ -45,8 +45,39 @@ int main() {
     bool* save_best_game = (bool*)calloc(matrix->depth, sizeof(bool));
 
 
-    // Recursive method to get the best game
-    find_best_score(matrix, 0, (*bg), best_score, save_best_game);
+    // Best game lookup level zero extracted
+    int current_level = 0;
+    int score = 0;
+    game_t* clone = game_cloner(matrix);
+
+    if (current_level == matrix->depth) {
+        score = score_calculator(clone);
+        if (score < *best_score) {
+            for (int level = 0; level < clone->depth; level++) {
+                save_best_game[level] = true;
+            }
+            *best_score = score;
+        }
+    } else {
+        for (int col = 0; col < clone->gamezone_num_cols; col++) {
+            char figure = clone->figures[current_level];
+            int num_rotations = get_tetris_figure_num_rotations(figure);
+            for (int rot = 0; rot < num_rotations; rot++) {
+                int row = figure_allocator(clone, figure, col, rot);
+                score = find_best_score(clone, current_level + 1, (*bg),
+                    best_score, save_best_game);
+                // Save best game from level, as directed from deepest level
+                if (save_best_game[current_level] == true) {
+                    best_game_saver((*bg), clone, current_level,
+                        save_best_game);
+                }
+                if (row != -1) {
+                    figure_remover(clone, figure, col, row, rot);
+                }
+            }
+        }
+    }
+    destroy_matrix(clone);
 
 
     // Print the results
