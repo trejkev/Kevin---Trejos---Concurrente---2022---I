@@ -33,7 +33,8 @@ int main() {
         best_game[i]->gamezone =
             (char**)create_matrix_value(matrix->gamezone_num_rows,
             matrix->gamezone_num_cols + 1, sizeof(char));
-        best_game[i]->figures = (char*) calloc(matrix->num_figures, sizeof(char));
+        best_game[i]->figures =
+            (char*)calloc(matrix->num_figures, sizeof(char));
     }
     game_t *(*bg)[] = &best_game;  // Pointer to best_game init position
 
@@ -42,6 +43,7 @@ int main() {
 
     // -- Variable to keep locking the best game savings per level
     bool* save_best_game = (bool*)calloc(matrix->depth, sizeof(bool));
+
 
     // Recursive method to get the best game
     find_best_score(matrix, 0, (*bg), best_score, save_best_game);

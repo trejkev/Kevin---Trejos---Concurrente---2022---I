@@ -1,4 +1,5 @@
-// Copyright 2022 Jose Andres Mena <jose.menaarias@ucr.ac.cr>
+// Copyright 2022 Kevin Trejos Vargas <kevin.trejosvargas@ucr.ac.cr>
+// Base extracted from Jose Andres Mena <jose.menaarias@ucr.ac.cr>
 
 #include "reader.h"
 
@@ -14,20 +15,20 @@ game_t* read_matrix(FILE* fptr) {
       if (counter == 0) {
         fscanf(fptr, "%lu", &game->id);  // Reads and saves game ID
         counter++;
-      } 
+      }
       if (counter == 1) {
         fscanf(fptr, "%i", &game->depth);  // Saves game depth
         counter++;
-      } 
+      }
       if (counter == 2) {
         fscanf(fptr, "%i", &game->gamezone_num_rows);  // Saves game depth
         program_length = 5 + game->gamezone_num_rows;  // Re-compute length
         counter++;
-      } 
+      }
       if (counter == 3) {
         fscanf(fptr, "%i", &game->gamezone_num_cols);  // Saves game depth
         counter++;
-      } 
+      }
       if (counter == 4) {
           game->gamezone = (char**)create_matrix_value(game->gamezone_num_rows,
                         game->gamezone_num_cols + 1, sizeof(char));
@@ -35,55 +36,26 @@ game_t* read_matrix(FILE* fptr) {
             fscanf(fptr, "%s", game->gamezone[i]);  // Saves the gamezone
             counter++;
           }
-          // printf("Counter is %i\n", counter);
-      } 
+      }
       if (counter == 4 + game->gamezone_num_rows) {
-        // printf("Counter into num figures is %i\n", counter);
         fscanf(fptr, "%i", &game->num_figures);  // Saves num figures
         program_length = program_length + game->num_figures;
-        // printf("New program length is %i\n", program_length);
         counter++;
-      } 
+      }
       if (counter == 5 + game->gamezone_num_rows) {
-        // printf("counter into figure placer is %i b4\n",counter);
-        // game->figures = (char**)create_matrix_value(game->num_figures,
-        //                 1, sizeof(char));
         game->figures = (char*) calloc(game->num_figures, sizeof(char));
         int breakline_counter = 0;
         for (int i = 0; i < game->num_figures*2; i++) {
-          // fscanf(fptr, "%s", &game->figures[i]);  // Saves num figures
-          // fscanf(fptr, "%c", &game->figures[i]);
           if (i%2 == 0) {
             char thrasher;
             fscanf(fptr, "%c", &thrasher);
             breakline_counter++;
-            // printf("Breakline counter is %i\n", breakline_counter);
-          } else if (i%2 != 0){
+          } else if (i%2 != 0) {
             fscanf(fptr, "%c", &game->figures[i-breakline_counter]);
-            // printf("Save figure in pos %i\n", i-breakline_counter);
           }
-          // printf("Figure %i is %s\n", i , &game->figures[i]);
           counter++;
         }
-        // printf("counter into figure placer is %i after\n",counter);
       }
-      // counter++;
-      // printf("I am here, counter is %i\n", counter);
-      // printf("Program length is %i\n", program_length);
-      // printf("ID is %lu\n",game->id);
-      // printf("Depth is %i\n",game->depth);
-      // printf("Num rows is %i\n", game->gamezone_num_rows);
-      // printf("Num cols is %i\n", game->gamezone_num_cols);
-      // printf("Gamezone is: \n");
-      // for(int pru = 0; pru < game->gamezone_num_rows; pru++) {
-      //   printf("%s \n", game->gamezone[pru]);
-      // }
-      // printf("Num figures is %i\n",game->num_figures);
-      // printf("Figures are: \n");
-      // for(int pru = 0; pru < game->num_figures; pru++) {
-      //   printf("figure %i %c \n", pru, game->figures[pru]);
-      // }
-      
     }
     fclose(fptr);  // Closing file
     return game;
@@ -97,9 +69,6 @@ void destroy_matrix(game_t* game_record) {
     // Release memory used by the figures
     free(game_record->figures);
     game_record->figures = NULL;
-    // free_matrix_value(game_record->num_figures,
-    //   (void**)game_record->figures);
-    // Release memory used by the record
     free(game_record);
 }
 
@@ -110,7 +79,7 @@ void** create_matrix_value(size_t row_count,
     return NULL;
   }
   for (size_t row = 0; row < row_count; ++row) {
-    if ((matrix[row] = calloc(col_count, element_size)) == NULL ) {
+    if ( (matrix[row] = calloc(col_count, element_size) ) == NULL ) {
       free_matrix_value(row_count, matrix);
       return NULL;
     }

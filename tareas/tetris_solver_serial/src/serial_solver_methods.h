@@ -19,8 +19,6 @@
  * @param rotation Actual rotation of the figure to place it.
  *
  */
-// void figure_remover(game_t* matrix, char* letter, int x_position,
-//     int y_position, int rotation);
 void figure_remover(game_t* matrix, char letter, int x_position,
     int y_position, int rotation);
 
@@ -30,7 +28,7 @@ void figure_remover(game_t* matrix, char letter, int x_position,
  * @param matrix Record containing all the relevant information for the game.
  * @param current_level Current level being played.
  * @param best_game Pointer to records saving the best game for each level
- * @param best_score Best score recorded in the past.
+ * @param save_bg Boolean value to block or allow best_game writing.
  * @return Score of the actual path taken.
  *
  */
@@ -46,8 +44,6 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
  * @param rotation Actual rotation of the figure to place it.
  *
  */
-// int figure_allocator(game_t* matrix, char* letter, int x_position,
-//     int rotation);
 int figure_allocator(game_t* matrix, char letter, int x_position,
     int rotation);
 
@@ -71,5 +67,26 @@ int score_calculator(game_t* matrix);
  *
  */
 void figure_stamp(game_t* matrix, figure_t* figure, int d_row, int l_col);
+
+/**
+ * @brief Method to clone an specific game, values copy instead of address.
+ * @details Given a gamezone, clone its values to another game_t* record.
+ * @param matrix Record containing all the relevant information for the original game to be cloned.
+ * @return Cloned game_t* record.
+ *
+ */
+game_t* game_cloner(game_t* matrix);
+
+/**
+ * @brief Method to save the best game for the current level.
+ * @param best_game Pointer to records saving the best game for each level
+ * @param clone Record containing all the relevant information for the current level game clone.
+ * @param current_level Current level being played.
+ * @param save_bg Boolean value to block or allow best_game writing.
+ * @return Score of the actual path taken.
+ *
+ */
+void best_game_saver(game_t** best_game, game_t* clone,
+    int current_level, bool* save_bg);
 
 #endif

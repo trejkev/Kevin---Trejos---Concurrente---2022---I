@@ -5,38 +5,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 int find_best_score(game_t* matrix, int current_level, game_t** best_game,
     int* best_score, bool* save_bg) {
-    int score = 0; 
+    int score = 0;
+    game_t* clone = game_cloner(matrix);
 
-    // Getting memory space for the clone
-    game_t* clone = calloc(1, sizeof(game_t));
-    clone->gamezone = (char**)create_matrix_value(matrix->gamezone_num_rows,
-        matrix->gamezone_num_cols + 1, sizeof(char));
-    // clone->figures = (char**)create_matrix_value(matrix->num_figures,
-    //     1, sizeof(char));
-    clone->figures = (char*) calloc(matrix->num_figures, sizeof(char));
-
-    // Cloning the values
-    clone->id = matrix->id;
-    clone->depth = matrix->depth;
-    clone->gamezone_num_rows = matrix->gamezone_num_rows;
-    clone->gamezone_num_cols = matrix->gamezone_num_cols;
-    for (int i = 0; i < clone->gamezone_num_rows; i++) {
-        for (int k = 0; k < clone->gamezone_num_cols; k++) {
-            clone->gamezone[i][k] = matrix->gamezone[i][k];
-        }
-    }
-    clone->num_figures = matrix->num_figures;
-    for (int i = 0; i < clone->num_figures; i++) {
-        // printf("Iteration %i", i);
-        clone->figures[i] = matrix->figures[i];
-        // printf("Clone figure is %s", &clone->figures[i]);
-    }
-
-    /* Last level + 1, it will realize it reached deepest position requested,
-     * thus, it will compute the metric, and if greater than last best game
-     * (defaulted to max value of the metric), it will replace the best score
-     * and spread a directive to save the last best game found.
-    */
     if (current_level == matrix->depth) {
         score = score_calculator(clone);
         if (score < *best_score) {
@@ -47,9 +18,7 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
         }
     } else {
         for (int col = 0; col < clone->gamezone_num_cols; col++) {
-            // char* figure = clone->figures[current_level];
             char figure = clone->figures[current_level];
-            // int num_rotations = get_tetris_figure_num_rotations(figure[0]);
             int num_rotations = get_tetris_figure_num_rotations(figure);
             for (int rot = 0; rot < num_rotations; rot++) {
                 int row = figure_allocator(clone, figure, col, rot);
@@ -57,26 +26,7 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
                     best_score, save_bg);
                 // Save best game from level, as directed from deepest level
                 if (save_bg[current_level] == true) {
-                    // Save clone from level into best game for this level
-                    best_game[current_level]->id = clone->id;
-                    best_game[current_level]->depth = clone->depth;
-                    best_game[current_level]->gamezone_num_rows =
-                        clone->gamezone_num_rows;
-                    best_game[current_level]->gamezone_num_cols =
-                        clone->gamezone_num_cols;
-                    for (int row = 0; row < clone->gamezone_num_rows; row++) {
-                        int gzcols = clone->gamezone_num_cols;
-                        for (int col = 0; col < gzcols; col++) {
-                            best_game[current_level]->gamezone[row][col] =
-                                clone->gamezone[row][col];
-                        }
-                    }
-                    best_game[current_level]->num_figures = clone->num_figures;
-                    for (int fig = 0; fig < clone->num_figures; fig++) {
-                        best_game[current_level]->figures[fig] =
-                            clone->figures[fig];
-                    }
-                    save_bg[current_level] = false;  // Block the current saving
+                    best_game_saver(best_game, clone, current_level, save_bg);
                 }
                 if (row != -1) {
                     figure_remover(clone, figure, col, row, rot);
@@ -105,8 +55,9 @@ int figure_allocator(game_t* matrix, char letter, int x_position,
         x_position + fut->width - 1 < matrix->gamezone_num_cols &&
         place_figure == false) {
         /* check matching between non zeros from figure with zeros in gamezone
-        if non-0 from figure match with zeros from gamezone keep getting down
-        if last condition fails rewind to last condition and place the figure */
+         * if non-0 from figure match with zeros from gamezone keep getting down
+         * if last condition fails rewind to last condition and place the figure
+         */
         int fig_width = 0;
         while (fig_width < fut->width && place_figure == false) {
             int fig_height = 0;
@@ -114,7 +65,7 @@ int figure_allocator(game_t* matrix, char letter, int x_position,
                 char figure_value = fut->value[fig_height][fig_width];
                 char game_val = matrix->gamezone[starting_row + fig_height]
                     [x_position + fig_width];
-                // Found condition of figure clash with floor
+                // Found condition of figure clash with another figure
                 if (figure_value != '0' && game_val != '0' &&
                     starting_row >= fut->height-1 &&
                     starting_row + fut->height - 2 >= 0 ) {
@@ -130,7 +81,9 @@ int figure_allocator(game_t* matrix, char letter, int x_position,
         starting_row++;
     }
     starting_row--;
-    // Position empty to the bottom, never reached a collision condition
+    /* Position empty to the bottom, never reached a collision condition.
+     * Thus, place the figure at the bottom.
+     */
     if (place_figure == false &&
         x_position + fut->width - 1 < matrix->gamezone_num_cols &&
         starting_row + fut->height - 2 < matrix->gamezone_num_rows) {
@@ -188,4 +141,55 @@ void figure_remover(game_t* matrix, char letter, int x_position,
             }
         }
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+game_t* game_cloner(game_t* matrix) {
+    // Getting memory space for the clone
+    game_t* clone = calloc(1, sizeof(game_t));
+    clone->gamezone = (char**)create_matrix_value(matrix->gamezone_num_rows,
+        matrix->gamezone_num_cols + 1, sizeof(char));
+    clone->figures = (char*) calloc(matrix->num_figures, sizeof(char));
+
+    // Cloning the values
+    clone->id = matrix->id;
+    clone->depth = matrix->depth;
+    clone->gamezone_num_rows = matrix->gamezone_num_rows;
+    clone->gamezone_num_cols = matrix->gamezone_num_cols;
+    for (int i = 0; i < clone->gamezone_num_rows; i++) {
+        for (int k = 0; k < clone->gamezone_num_cols; k++) {
+            clone->gamezone[i][k] = matrix->gamezone[i][k];
+        }
+    }
+    clone->num_figures = matrix->num_figures;
+    for (int i = 0; i < clone->num_figures; i++) {
+        clone->figures[i] = matrix->figures[i];
+    }
+
+    return clone;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void best_game_saver(game_t** best_game, game_t* clone,
+    int current_level, bool* save_bg) {
+    // Save clone from level into best game for this level
+    best_game[current_level]->id = clone->id;
+    best_game[current_level]->depth = clone->depth;
+    best_game[current_level]->gamezone_num_rows =
+        clone->gamezone_num_rows;
+    best_game[current_level]->gamezone_num_cols =
+        clone->gamezone_num_cols;
+    for (int row = 0; row < clone->gamezone_num_rows; row++) {
+        int gzcols = clone->gamezone_num_cols;
+        for (int col = 0; col < gzcols; col++) {
+            best_game[current_level]->gamezone[row][col] =
+                clone->gamezone[row][col];
+        }
+    }
+    best_game[current_level]->num_figures = clone->num_figures;
+    for (int fig = 0; fig < clone->num_figures; fig++) {
+        best_game[current_level]->figures[fig] =
+            clone->figures[fig];
+    }
+    save_bg[current_level] = false;  // Block the current saving
 }
