@@ -193,3 +193,25 @@ void best_game_saver(game_t** best_game, game_t* clone,
     }
     save_bg[current_level] = false;  // Block the current saving
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void write_bestgame(FILE* file_pointer, game_t* best_game) {
+    fprintf(file_pointer, "%lu", best_game->id);
+    fprintf(file_pointer, "%c", '\n');
+    fprintf(file_pointer, "%i", best_game->depth);
+    fprintf(file_pointer, "%c", '\n');
+    fprintf(file_pointer, "%i", best_game->gamezone_num_rows);
+    fprintf(file_pointer, "%c", '\n');
+    fprintf(file_pointer, "%i", best_game->gamezone_num_cols);
+    fprintf(file_pointer, "%c", '\n');
+    for (int row = 0; row < best_game->gamezone_num_rows; row++) {
+        fprintf(file_pointer, "%s", best_game->gamezone[row]);
+        fprintf(file_pointer, "%c", '\n');
+    }
+    fprintf(file_pointer, "%i", best_game->num_figures);
+    fprintf(file_pointer, "%c", '\n');
+    for (int fig_num = 0; fig_num < best_game->num_figures; fig_num++) {
+        fprintf(file_pointer, "%c", best_game->figures[fig_num]);
+        fprintf(file_pointer, "%c", '\n');
+    }
+}

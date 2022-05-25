@@ -89,4 +89,13 @@ game_t* game_cloner(game_t* matrix);
 void best_game_saver(game_t** best_game, game_t* clone,
     int current_level, bool* save_bg);
 
+/**
+ * @brief Method to write the file with the best game for an specific level
+ * @details Given a txt path and a game_t* record, save the data from the record to the txt file
+ * @param file_pointer Pointer to the file.
+ * @return game_t* Record with the game to be saved.
+ *
+ */
+void write_bestgame(FILE* file_pointer, game_t* best_game);
+
 #endif

@@ -45,7 +45,7 @@ int main() {
     bool* save_best_game = (bool*)calloc(matrix->depth, sizeof(bool));
 
 
-    // Best game lookup level zero extracted
+    // -- Best game lookup level zero extracted
     int current_level = 0;
     int score = 0;
     game_t* clone = game_cloner(matrix);
@@ -80,7 +80,7 @@ int main() {
     destroy_matrix(clone);
 
 
-    // Print the results
+    // -- Print the basegame
     printf("DEBUG: Best score is %d\n", *best_score);
     printf("DEBUG: Basegame\n");
     for (int row = 0; row < 10; row++) {
@@ -90,6 +90,8 @@ int main() {
         printf("%i %s\n", row, matrix->gamezone[row]);
     }
     printf("\n\n");
+
+    // -- Print the best games
     for (int depth = 0; depth < matrix->depth; depth++) {
         printf("DEBUG: Best game level %i\n", depth);
         for (int row = 0; row < 10; row++) {
@@ -101,19 +103,40 @@ int main() {
         printf("\n\n");
     }
 
-    // Destroy best games
-    for (int i = 0; i < matrix->depth; i++) {
-        printf("DEBUG: Destroying game %i\n", i);
-        destroy_matrix((*bg)[i]);
+
+    // -- Saves the best games into files
+    for (int level = 0; level < matrix->depth; level++) {
+        char game_result_path[24];
+        snprintf(game_result_path, sizeof(game_result_path), "%s%d%s",
+            "test/tetris_play_", level, ".txt");
+        FILE *fptr;
+        fptr = fopen(game_result_path, "w");
+        // -- Check if  file opened correctly
+        if (!fptr) {
+            fprintf(stderr, "Invalid file \n");
+            return EXIT_FAILURE;
+        } else {
+            printf("DEBUG: File opened \n");
+        }
+        printf("Saving game %i\n", level);
+        write_bestgame(fptr, (*bg)[level]);
+        fclose(fptr);
     }
 
-    // Destroy best game saving flags
+
+    // -- Destroy best games
+    for (int i = 0; i < matrix->depth; i++) {
+        printf("DEBUG: Destroying best game %i\n", i);
+        destroy_matrix((*bg)[i]);
+    }
+    // -- Destroy best game saving flags
     free(save_best_game);
     printf("DEBUG: Destroyed save_best_game flags\n");
 
-    // Destroy initial game
+    // -- Destroy initial game
     destroy_matrix(matrix);
     printf("DEBUG: Destroyed initial game state\n");
+
 
     return EXIT_SUCCESS;
 }
