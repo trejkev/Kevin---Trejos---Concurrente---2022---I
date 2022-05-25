@@ -7,17 +7,29 @@
 #include <unistd.h>
 
 
+typedef struct private_data {
+    game_t *(*best_games)[];
+    int best_score;
+    size_t thread_num;
+    size_t num_threads;
+    bool* save_best_game;
+} private_data_t;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** arg) {
 
+
     // -- Set the amount of threads to be used
-    size_t thread_count = sysconf(_SC_NPROCESSORS_ONLN);
+    size_t thread_qty = sysconf(_SC_NPROCESSORS_ONLN);
     if (argc == 2) {
-        if (sscanf(arg[1], "%zu", &thread_count) != 1 || errno) {
+        if (sscanf(arg[1], "%zu", &thread_qty) != 1 || errno) {
             fprintf(stderr, "Invalid number of threads.\n");
             return EXIT_FAILURE;
         }
     }
+    printf("DEBUG: Thread count is %zu\n", thread_qty);
+
 
     // -- Read the basegame file
     FILE* fptr = stdin;
@@ -40,24 +52,43 @@ int main(int argc, char** arg) {
         return EXIT_FAILURE;
     }
 
-
-    game_t* best_game[matrix->depth+1];
-    // -- Getting memory for best games
-    for (int i = 0; i <= matrix->depth; i++) {
-        best_game[i] = (game_t*)calloc(1, sizeof(game_t));
-        best_game[i]->gamezone =
-            (char**)create_matrix_value(matrix->gamezone_num_rows,
-            matrix->gamezone_num_cols + 1, sizeof(char));
-        best_game[i]->figures =
-            (char*)calloc(matrix->num_figures, sizeof(char));
+    // -- Shared data matrix for best games for each thread
+    game_t* best_game_matrix[thread_qty*(matrix->depth + 1)];
+    // Getting memory for the best games for all threads
+    for (int thread = 0; thread < thread_qty; thread++) {
+        for (int depth = 0; depth <= matrix->depth; depth++) {
+            best_game_matrix[thread + depth]->gamezone = 
+                (char**)create_matrix_value(matrix->gamezone_num_rows,
+                matrix->gamezone_num_cols + 1, sizeof(char));
+            best_game_matrix[thread + depth]->figures = 
+                (char*)calloc(matrix->num_figures, sizeof(char));
+        }
     }
-    game_t *(*bg)[] = &best_game;  // Pointer to best_game init position
+    game_t *(*bg)[] = &best_game_matrix;  // Pointer to best game init position
 
     int bs = matrix->gamezone_num_rows;  // Best score initialization
     int* best_score = &bs;
 
-    // -- Variable to keep locking the best game savings per level
-    bool* save_best_game = (bool*)calloc(matrix->depth + 1, sizeof(bool));
+    // -- Creating variables for each thread
+    private_data_t* private_data[thread_qty];
+    for (int thread = 0; thread < thread_qty; thread++) {
+        // Allocate space for private data
+        private_data[thread] = 
+            (private_data_t*)calloc(1, sizeof(private_data_t*));
+        private_data[thread]->best_games = &best_game_matrix;
+        private_data[thread]->best_score = *best_score;
+        private_data[thread]->num_threads = thread_qty;
+        private_data[thread]->thread_num = thread;
+        // -- Variable to keep locking the best game savings per level
+        private_data[thread]->save_best_game = 
+            (bool*)calloc(matrix->depth + 1, sizeof(bool));
+    }
+
+
+
+
+
+
 
 
        // -- Best game lookup level zero extracted
