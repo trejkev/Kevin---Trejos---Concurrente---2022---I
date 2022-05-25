@@ -8,21 +8,21 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
     int score = 0;
     game_t* clone = game_cloner(matrix);
 
-    if (current_level == matrix->depth) {
+    if (current_level > matrix->depth) {
         score = score_calculator(clone);
         if (score < *best_score) {
-            for (int level = 0; level < clone->depth; level++) {
+            for (int level = 0; level <= clone->depth; level++) {
                 save_bg[level] = true;
             }
             *best_score = score;
         }
-    } else {
+    } else if (current_level <= matrix->depth) {
         for (int col = 0; col < clone->gamezone_num_cols; col++) {
             char figure = clone->figures[current_level];
             int num_rotations = get_tetris_figure_num_rotations(figure);
             for (int rot = 0; rot < num_rotations; rot++) {
                 int row = figure_allocator(clone, figure, col, rot);
-                score = find_best_score(clone, current_level + 1, best_game,
+                find_best_score(clone, current_level + 1, best_game,
                     best_score, save_bg);
                 // Save best game from level, as directed from deepest level
                 if (save_bg[current_level] == true) {
@@ -179,9 +179,9 @@ void best_game_saver(game_t** best_game, game_t* clone,
         clone->gamezone_num_rows;
     best_game[current_level]->gamezone_num_cols =
         clone->gamezone_num_cols;
-    for (int row = 0; row < clone->gamezone_num_rows; row++) {
+    for (int row = 0; row < clone->gamezone_num_rows; ++row) {
         int gzcols = clone->gamezone_num_cols;
-        for (int col = 0; col < gzcols; col++) {
+        for (int col = 0; col < gzcols; ++col) {
             best_game[current_level]->gamezone[row][col] =
                 clone->gamezone[row][col];
         }

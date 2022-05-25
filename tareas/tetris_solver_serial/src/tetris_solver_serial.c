@@ -26,9 +26,10 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    game_t* best_game[matrix->depth];
+
+    game_t* best_game[matrix->depth+1];
     // -- Getting memory for best games
-    for (int i = 0; i < matrix->depth; i++) {
+    for (int i = 0; i <= matrix->depth; i++) {
         best_game[i] = (game_t*)calloc(1, sizeof(game_t));
         best_game[i]->gamezone =
             (char**)create_matrix_value(matrix->gamezone_num_rows,
@@ -42,38 +43,25 @@ int main() {
     int* best_score = &bs;
 
     // -- Variable to keep locking the best game savings per level
-    bool* save_best_game = (bool*)calloc(matrix->depth, sizeof(bool));
+    bool* save_best_game = (bool*)calloc(matrix->depth + 1, sizeof(bool));
 
 
-    // -- Best game lookup level zero extracted
+       // -- Best game lookup level zero extracted
     int current_level = 0;
-    int score = 0;
     game_t* clone = game_cloner(matrix);
-
-    if (current_level == matrix->depth) {
-        score = score_calculator(clone);
-        if (score < *best_score) {
-            for (int level = 0; level < clone->depth; level++) {
-                save_best_game[level] = true;
+    for (int col = 0; col < clone->gamezone_num_cols; col++) {
+        char figure = clone->figures[current_level];
+        int num_rotations = get_tetris_figure_num_rotations(figure);
+        for (int rot = 0; rot < num_rotations; rot++) {
+            int row = figure_allocator(clone, figure, col, rot);
+            find_best_score(clone, current_level + 1, (*bg),
+                best_score, save_best_game);
+            if (save_best_game[current_level] == true) {
+                best_game_saver((*bg), clone, current_level,
+                    save_best_game);
             }
-            *best_score = score;
-        }
-    } else {
-        for (int col = 0; col < clone->gamezone_num_cols; col++) {
-            char figure = clone->figures[current_level];
-            int num_rotations = get_tetris_figure_num_rotations(figure);
-            for (int rot = 0; rot < num_rotations; rot++) {
-                int row = figure_allocator(clone, figure, col, rot);
-                score = find_best_score(clone, current_level + 1, (*bg),
-                    best_score, save_best_game);
-                // Save best game from level, as directed from deepest level
-                if (save_best_game[current_level] == true) {
-                    best_game_saver((*bg), clone, current_level,
-                        save_best_game);
-                }
-                if (row != -1) {
-                    figure_remover(clone, figure, col, row, rot);
-                }
+            if (row != -1) {
+                figure_remover(clone, figure, col, row, rot);
             }
         }
     }
@@ -92,7 +80,7 @@ int main() {
     printf("\n\n");
 
     // -- Print the best games
-    for (int depth = 0; depth < matrix->depth; depth++) {
+    for (int depth = 0; depth <= matrix->depth; depth++) {
         printf("DEBUG: Best game level %i\n", depth);
         for (int row = 0; row < 10; row++) {
             printf("%i  %s\n", row, (*bg)[depth]->gamezone[row]);
@@ -105,7 +93,7 @@ int main() {
 
 
     // -- Saves the best games into files
-    for (int level = 0; level < matrix->depth; level++) {
+    for (int level = 0; level <= matrix->depth; level++) {
         char game_result_path[24];
         snprintf(game_result_path, sizeof(game_result_path), "%s%d%s",
             "test/tetris_play_", level, ".txt");
@@ -113,22 +101,23 @@ int main() {
         fptr = fopen(game_result_path, "w");
         // -- Check if  file opened correctly
         if (!fptr) {
-            fprintf(stderr, "Invalid file \n");
+            fprintf(stderr, "DEBUG: Invalid file \n");
             return EXIT_FAILURE;
         } else {
             printf("DEBUG: File opened \n");
         }
-        printf("Saving game %i\n", level);
+        printf("DEBUG: Saving game %i\n", level);
         write_bestgame(fptr, (*bg)[level]);
         fclose(fptr);
     }
 
 
     // -- Destroy best games
-    for (int i = 0; i < matrix->depth; i++) {
+    for (int i = 0; i <= matrix->depth; i++) {
         printf("DEBUG: Destroying best game %i\n", i);
         destroy_matrix((*bg)[i]);
     }
+
     // -- Destroy best game saving flags
     free(save_best_game);
     printf("DEBUG: Destroyed save_best_game flags\n");
