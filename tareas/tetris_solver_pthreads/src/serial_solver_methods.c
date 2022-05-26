@@ -3,18 +3,26 @@
 #include "serial_solver_methods.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-int find_best_score(game_t* matrix, int current_level, game_t** best_game,
-    int* best_score, bool* save_bg) {
+// int find_best_score(game_t* matrix, int current_level, game_t** best_game,
+//     int best_score, bool* save_bg, size_t thread_num, size_t num_threads) {
+int find_best_score(game_t* matrix, int current_level, private_data_t* data) {
+
+    // game_t** best_game = data->shared_data->bg_matrix,
+    // int best_score = data->best_score,
+    // bool* save_bg = data->save_best_game,
+    // size_t thread_num = data->thread_num,
+    // size_t num_threads = data->num_threads
+
     int score = 0;
     game_t* clone = game_cloner(matrix);
 
     if (current_level > matrix->depth) {
         score = score_calculator(clone);
-        if (score < *best_score) {
+        if (score < data->best_score) {
             for (int level = 0; level <= clone->depth; level++) {
-                save_bg[level] = true;
+                data->save_best_game[level] = true;
             }
-            *best_score = score;
+            data->best_score = score;
         }
     } else if (current_level <= matrix->depth) {
         for (int col = 0; col < clone->gamezone_num_cols; col++) {
@@ -22,11 +30,10 @@ int find_best_score(game_t* matrix, int current_level, game_t** best_game,
             int num_rotations = get_tetris_figure_num_rotations(figure);
             for (int rot = 0; rot < num_rotations; rot++) {
                 int row = figure_allocator(clone, figure, col, rot);
-                find_best_score(clone, current_level + 1, best_game,
-                    best_score, save_bg);
+                find_best_score(clone, current_level + 1, data);
                 // Save best game from level, as directed from deepest level
-                if (save_bg[current_level] == true) {
-                    best_game_saver(best_game, clone, current_level, save_bg);
+                if (data->save_best_game[current_level] == true) {
+                    best_game_saver(data->shared_data->bg_matrix, clone, current_level, data->save_best_game, data->thread_num);
                 }
                 if (row != -1) {
                     figure_remover(clone, figure, col, row, rot);
@@ -171,24 +178,25 @@ game_t* game_cloner(game_t* matrix) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void best_game_saver(game_t** best_game, game_t* clone,
-    int current_level, bool* save_bg) {
+    int current_level, bool* save_bg, size_t thread_num) {
     // Save clone from level into best game for this level
-    best_game[current_level]->id = clone->id;
-    best_game[current_level]->depth = clone->depth;
-    best_game[current_level]->gamezone_num_rows =
+    // printf("Thread %zu: Best game position is %li\n",thread_num, current_level + thread_num*(clone->depth+1));
+    best_game[current_level + thread_num*(clone->depth+1)]->id = clone->id;
+    best_game[current_level + thread_num*(clone->depth+1)]->depth = clone->depth;
+    best_game[current_level + thread_num*(clone->depth+1)]->gamezone_num_rows =
         clone->gamezone_num_rows;
-    best_game[current_level]->gamezone_num_cols =
+    best_game[current_level + thread_num*(clone->depth+1)]->gamezone_num_cols =
         clone->gamezone_num_cols;
     for (int row = 0; row < clone->gamezone_num_rows; ++row) {
         int gzcols = clone->gamezone_num_cols;
         for (int col = 0; col < gzcols; ++col) {
-            best_game[current_level]->gamezone[row][col] =
+            best_game[current_level + thread_num*(clone->depth+1)]->gamezone[row][col] =
                 clone->gamezone[row][col];
         }
     }
-    best_game[current_level]->num_figures = clone->num_figures;
+    best_game[current_level + thread_num*(clone->depth+1)]->num_figures = clone->num_figures;
     for (int fig = 0; fig < clone->num_figures; fig++) {
-        best_game[current_level]->figures[fig] =
+        best_game[current_level + thread_num*(clone->depth+1)]->figures[fig] =
             clone->figures[fig];
     }
     save_bg[current_level] = false;  // Block the current saving

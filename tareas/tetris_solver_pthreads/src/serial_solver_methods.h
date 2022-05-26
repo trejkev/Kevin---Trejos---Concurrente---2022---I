@@ -8,6 +8,20 @@
 #include "tetris_figure_factory.h"
 
 
+typedef struct shared_data {
+    game_t** bg_matrix;
+} shared_data_t;
+
+typedef struct private_data {
+    shared_data_t* shared_data;
+    game_t* basegame;
+    int best_score;
+    size_t thread_num;
+    size_t num_threads;
+    bool* save_best_game;
+} private_data_t;
+
+
 /**
  * @brief Method to remove the figure into the gamezone
  * @details Given a figure, a gamezone, and its upper-left corner positioning, 
@@ -32,8 +46,9 @@ void figure_remover(game_t* matrix, char letter, int x_position,
  * @return Score of the actual path taken.
  *
  */
-int find_best_score(game_t* matrix, int current_level, game_t** best_game,
-    int* best_score, bool* save_bg);
+// int find_best_score(game_t* matrix, int current_level, game_t** best_game,
+//     int best_score, bool* save_bg, size_t thread_num, size_t num_threads);
+int find_best_score(game_t* matrix, int current_level, private_data_t* data);
 
 /**
  * @brief Method to check the deepest place in the gamezone that the figure can fit.
@@ -87,7 +102,7 @@ game_t* game_cloner(game_t* matrix);
  *
  */
 void best_game_saver(game_t** best_game, game_t* clone,
-    int current_level, bool* save_bg);
+    int current_level, bool* save_bg, size_t thread_num);
 
 /**
  * @brief Method to write the file with the best game for an specific level
