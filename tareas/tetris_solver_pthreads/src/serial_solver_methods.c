@@ -3,16 +3,7 @@
 #include "serial_solver_methods.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// int find_best_score(game_t* matrix, int current_level, game_t** best_game,
-//     int best_score, bool* save_bg, size_t thread_num, size_t num_threads) {
 int find_best_score(game_t* matrix, int current_level, private_data_t* data) {
-
-    // game_t** best_game = data->shared_data->bg_matrix,
-    // int best_score = data->best_score,
-    // bool* save_bg = data->save_best_game,
-    // size_t thread_num = data->thread_num,
-    // size_t num_threads = data->num_threads
-
     int score = 0;
     game_t* clone = game_cloner(matrix);
 
@@ -33,7 +24,8 @@ int find_best_score(game_t* matrix, int current_level, private_data_t* data) {
                 find_best_score(clone, current_level + 1, data);
                 // Save best game from level, as directed from deepest level
                 if (data->save_best_game[current_level] == true) {
-                    best_game_saver(data->shared_data->bg_matrix, clone, current_level, data->save_best_game, data->thread_num);
+                    best_game_saver(data->shared_data->bg_matrix, clone,
+                        current_level, data->save_best_game, data->thread_num);
                 }
                 if (row != -1) {
                     figure_remover(clone, figure, col, row, rot);
@@ -41,13 +33,11 @@ int find_best_score(game_t* matrix, int current_level, private_data_t* data) {
             }
         }
     }
-    destroy_matrix(clone);
+    destroy_matrix(clone, clone->gamezone_num_rows);
     return score;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// int figure_allocator(game_t* matrix, char* letter, int x_position,
-//     int rotation) {
 int figure_allocator(game_t* matrix, char letter, int x_position,
     int rotation) {
     // figure_t* fut = get_tetris_figure(letter[0], rotation);
@@ -134,8 +124,6 @@ int score_calculator(game_t* matrix) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// void figure_remover(game_t* matrix, char* letter, int x_position,
-//     int y_position, int rotation) {
 void figure_remover(game_t* matrix, char letter, int x_position,
     int y_position, int rotation) {
     // figure_t* figure = get_tetris_figure(letter[0], rotation);
@@ -179,47 +167,37 @@ game_t* game_cloner(game_t* matrix) {
 ////////////////////////////////////////////////////////////////////////////////
 void best_game_saver(game_t** best_game, game_t* clone,
     int current_level, bool* save_bg, size_t thread_num) {
+    int actual_bg = current_level + thread_num*(clone->depth + 1);
     // Save clone from level into best game for this level
-    // printf("Thread %zu: Best game position is %li\n",thread_num, current_level + thread_num*(clone->depth+1));
-    best_game[current_level + thread_num*(clone->depth+1)]->id = clone->id;
-    best_game[current_level + thread_num*(clone->depth+1)]->depth = clone->depth;
-    best_game[current_level + thread_num*(clone->depth+1)]->gamezone_num_rows =
-        clone->gamezone_num_rows;
-    best_game[current_level + thread_num*(clone->depth+1)]->gamezone_num_cols =
-        clone->gamezone_num_cols;
+    best_game[actual_bg]->id = clone->id;
+    best_game[actual_bg]->depth = clone->depth;
+    best_game[actual_bg]->gamezone_num_rows = clone->gamezone_num_rows;
+    best_game[actual_bg]->gamezone_num_cols = clone->gamezone_num_cols;
     for (int row = 0; row < clone->gamezone_num_rows; ++row) {
         int gzcols = clone->gamezone_num_cols;
         for (int col = 0; col < gzcols; ++col) {
-            best_game[current_level + thread_num*(clone->depth+1)]->gamezone[row][col] =
+            best_game[actual_bg]->gamezone[row][col] =
                 clone->gamezone[row][col];
         }
     }
-    best_game[current_level + thread_num*(clone->depth+1)]->num_figures = clone->num_figures;
+    best_game[actual_bg]->num_figures = clone->num_figures;
     for (int fig = 0; fig < clone->num_figures; fig++) {
-        best_game[current_level + thread_num*(clone->depth+1)]->figures[fig] =
-            clone->figures[fig];
+        best_game[actual_bg]->figures[fig] = clone->figures[fig];
     }
     save_bg[current_level] = false;  // Block the current saving
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void write_bestgame(FILE* file_pointer, game_t* best_game) {
-    fprintf(file_pointer, "%lu", best_game->id);
-    fprintf(file_pointer, "%c", '\n');
-    fprintf(file_pointer, "%i", best_game->depth);
-    fprintf(file_pointer, "%c", '\n');
-    fprintf(file_pointer, "%i", best_game->gamezone_num_rows);
-    fprintf(file_pointer, "%c", '\n');
-    fprintf(file_pointer, "%i", best_game->gamezone_num_cols);
-    fprintf(file_pointer, "%c", '\n');
+    fprintf(file_pointer, "%lu\n", best_game->id);
+    fprintf(file_pointer, "%i\n", best_game->depth);
+    fprintf(file_pointer, "%i\n", best_game->gamezone_num_rows);
+    fprintf(file_pointer, "%i\n", best_game->gamezone_num_cols);
     for (int row = 0; row < best_game->gamezone_num_rows; row++) {
-        fprintf(file_pointer, "%s", best_game->gamezone[row]);
-        fprintf(file_pointer, "%c", '\n');
+        fprintf(file_pointer, "%s\n", best_game->gamezone[row]);
     }
-    fprintf(file_pointer, "%i", best_game->num_figures);
-    fprintf(file_pointer, "%c", '\n');
+    fprintf(file_pointer, "%i\n", best_game->num_figures);
     for (int fig_num = 0; fig_num < best_game->num_figures; fig_num++) {
-        fprintf(file_pointer, "%c", best_game->figures[fig_num]);
-        fprintf(file_pointer, "%c", '\n');
+        fprintf(file_pointer, "%c\n", best_game->figures[fig_num]);
     }
 }

@@ -34,7 +34,7 @@ game_t* read_matrix(FILE* fptr);
  * @param game_t* Record to be destroyed.
  *
  */
-void destroy_matrix(game_t* matrix);
+void destroy_matrix(game_t* game_record, int rows_qty);
 
 /**
  * @brief Method to create a matrix of row_count times col_count, each cell of type element_size
