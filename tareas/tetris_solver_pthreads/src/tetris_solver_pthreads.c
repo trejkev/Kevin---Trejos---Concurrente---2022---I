@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
-#include "serial_solver_methods.h"
+#include "pthreads_solver_methods.h"
 
 
 void* run(void *params);
@@ -21,7 +21,6 @@ int main(int argc, char** arg) {
         }
     }
     printf("DEBUG: Thread count is %zu\n", thread_qty);
-
 
     // -- Read the basegame file
     FILE* fptr = stdin;
@@ -40,7 +39,6 @@ int main(int argc, char** arg) {
         return EXIT_FAILURE;
     }
 
-
     // -- Shared data keeps best games for each thread
     game_t* best_game[thread_qty*(matrix->depth + 1) + matrix->depth];
     for (size_t i = 0;
@@ -56,7 +54,6 @@ int main(int argc, char** arg) {
         (shared_data_t*)calloc(1, sizeof(shared_data_t));
     shared_data->bg_matrix = best_game;
 
-
     // -- Private data for each thread
     private_data_t* private_data = (private_data_t*)malloc(
         thread_qty * sizeof(private_data_t));
@@ -69,7 +66,6 @@ int main(int argc, char** arg) {
         private_data[thread].save_best_game =
             (bool*)calloc(matrix->depth + 1, sizeof(bool));
     }
-
 
     // -- Concurrence begins here
     pthread_t* threads = (pthread_t*)calloc(thread_qty, sizeof(pthread_t));
@@ -86,7 +82,6 @@ int main(int argc, char** arg) {
     }
     printf("DEBUG: Joint completed!\n");
 
-
     // -- Get which thread has the best score
     size_t thread_with_bs = 0;  // Option to take will be always first col
     for (size_t thread = 0; thread < thread_qty; thread++) {
@@ -97,14 +92,13 @@ int main(int argc, char** arg) {
     }
     printf("DEBUG: Thread with best score is %zu\n", thread_with_bs);
 
-
     // -- Print the basegame
     printf("DEBUG: Basegame\n");
     for (int row = 0; row < 10; row++) {
-        printf("%i  %s\n", row, matrix->gamezone[row]);
+        printf("DEBUG: %i  %s\n", row, matrix->gamezone[row]);
     }
     for (int row = 10; row < matrix->gamezone_num_rows; row++) {
-        printf("%i %s\n", row, matrix->gamezone[row]);
+        printf("DEBUG: %i %s\n", row, matrix->gamezone[row]);
     }
     printf("\n\n");
 
@@ -112,18 +106,17 @@ int main(int argc, char** arg) {
     for (int depth = 0; depth <= matrix->depth; depth++) {
         printf("DEBUG: Best game level %i\n", depth);
         for (int row = 0; row < 10; row++) {
-            printf("%i  %s\n", row, shared_data->
+            printf("DEBUG: %i  %s\n", row, shared_data->
                 bg_matrix[thread_with_bs*(matrix->depth+1) + depth]->
                 gamezone[row]);
         }
         for (int row = 10; row < matrix->gamezone_num_rows; row++) {
-            printf("%i %s\n", row, shared_data->
+            printf("DEBUG: %i %s\n", row, shared_data->
                 bg_matrix[thread_with_bs*(matrix->depth+1) + depth]->
                 gamezone[row]);
         }
         printf("\n\n");
     }
-
 
     // -- Saves the best games into files
     for (int level = 0; level <= matrix->depth; level++) {
@@ -132,7 +125,7 @@ int main(int argc, char** arg) {
             "test/tetris_play_", level, ".txt");
         FILE *fptr;
         fptr = fopen(game_result_path, "w");
-        // -- Check if  file opened correctly
+        // Check if  file opened correctly
         if (!fptr) {
             fprintf(stderr, "DEBUG: Invalid file \n");
             return EXIT_FAILURE;
@@ -144,7 +137,6 @@ int main(int argc, char** arg) {
         write_bestgame(fptr, shared_data->bg_matrix[offset + level]);
         fclose(fptr);
     }
-
 
 
     // -- Destroy shared data
@@ -165,11 +157,9 @@ int main(int argc, char** arg) {
     // -- Destroy threads
     free(threads);
 
-
     // -- Destroy initial game
     destroy_matrix(matrix, matrix->gamezone_num_rows);
     printf("DEBUG: Destroyed initial game state\n");
-
 
     return EXIT_SUCCESS;
 }
@@ -191,7 +181,7 @@ void* run(void *params) {
         end = data->basegame->gamezone_num_cols;  // Ensure all cols are covered
     }
 
-    // Blocks mapping for columns
+    // -- Blocks mapping for columns
     for (int col = init; col < end; col++) {
         char figure = data->basegame->figures[current_level];
         int num_rotations = get_tetris_figure_num_rotations(figure);

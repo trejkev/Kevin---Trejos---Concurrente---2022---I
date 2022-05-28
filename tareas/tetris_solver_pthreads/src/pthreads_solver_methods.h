@@ -23,7 +23,7 @@ typedef struct private_data {
 
 
 /**
- * @brief Method to remove the figure into the gamezone
+ * @brief Method to remove the figure into the gamezone.
  * @details Given a figure, a gamezone, and its upper-left corner positioning, 
  * remove the figure from the gamezone
  * @param matrix Record containing all the relevant information for the game.
@@ -41,13 +41,10 @@ void figure_remover(game_t* matrix, char letter, int x_position,
  * @details Given a basegame and a current level, place the figures in the tetris and calculate the game score.
  * @param matrix Record containing all the relevant information for the game.
  * @param current_level Current level being played.
- * @param best_game Pointer to records saving the best game for each level
- * @param save_bg Boolean value to block or allow best_game writing.
+ * @param data Pointer to private data from current thread.
  * @return Score of the actual path taken.
  *
  */
-// int find_best_score(game_t* matrix, int current_level, game_t** best_game,
-//     int best_score, bool* save_bg, size_t thread_num, size_t num_threads);
 int find_best_score(game_t* matrix, int current_level, private_data_t* data);
 
 /**
@@ -94,10 +91,11 @@ game_t* game_cloner(game_t* matrix);
 
 /**
  * @brief Method to save the best game for the current level.
- * @param best_game Pointer to records saving the best game for each level
+ * @param best_game Pointer to records saving the best game for each level.
  * @param clone Record containing all the relevant information for the current level game clone.
  * @param current_level Current level being played.
  * @param save_bg Boolean value to block or allow best_game writing.
+ * @param thread_num used to give the offset to matrix initial position, together with depth.
  * @return Score of the actual path taken.
  *
  */
@@ -105,9 +103,10 @@ void best_game_saver(game_t** best_game, game_t* clone,
     int current_level, bool* save_bg, size_t thread_num);
 
 /**
- * @brief Method to write the file with the best game for an specific level
- * @details Given a txt path and a game_t* record, save the data from the record to the txt file
+ * @brief Method to write the file with the best game for an specific level.
+ * @details Given a txt path and a game_t* record, save the data from the record to the txt file.
  * @param file_pointer Pointer to the file.
+ * @param best_game Game to be saved into file.
  * @return game_t* Record with the game to be saved.
  *
  */
