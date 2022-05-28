@@ -4,6 +4,8 @@
 #include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <time.h>
+#include <math.h>
 #include "pthreads_solver_methods.h"
 
 
@@ -30,7 +32,7 @@ int main(int argc, char** arg) {
         fprintf(stderr, "Invalid file \n");
         return EXIT_FAILURE;
     } else {
-        printf("DEBUG: File opened \n");
+        printf("DEBUG: File test/Input_Tetris.txt opened \n");
     }
     game_t *matrix = read_matrix(fptr);  // Saves the document into record
     // -- Check if matrix creation was successful
@@ -38,6 +40,14 @@ int main(int argc, char** arg) {
         fprintf(stderr, "Invalid file content.\n");
         return EXIT_FAILURE;
     }
+
+    // -- Redefine max threads if greater than maximum needed threads
+    if (thread_qty > (size_t)matrix->gamezone_num_cols) {
+        thread_qty = matrix->gamezone_num_cols;
+        printf("DEBUG: Thread reduced to its max value: %zu\n", thread_qty);
+    }
+
+    printf("\n\n");  // Prints slenderization
 
     // -- Shared data keeps best games for each thread
     game_t* best_game[thread_qty*(matrix->depth + 1) + matrix->depth];
@@ -67,6 +77,9 @@ int main(int argc, char** arg) {
             (bool*)calloc(matrix->depth + 1, sizeof(bool));
     }
 
+    struct timespec start_time;
+    clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &start_time);
+
     // -- Concurrence begins here
     pthread_t* threads = (pthread_t*)calloc(thread_qty, sizeof(pthread_t));
     for (size_t i = 0; i < thread_qty; ++i) {
@@ -80,7 +93,15 @@ int main(int argc, char** arg) {
     for (size_t thread = 0; thread < thread_qty; thread++) {
         pthread_join(threads[thread], NULL);
     }
-    printf("DEBUG: Joint completed!\n");
+    printf("DEBUG: Threads joint completed\n");
+
+    struct timespec finish_time;
+    clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &finish_time);
+
+    double elapsed = (finish_time.tv_sec - start_time.tv_sec) + 
+                     (finish_time.tv_nsec - start_time.tv_nsec)*1e-9;
+
+    printf("DEBUG: Elapsed time is: %.9lf s\n", elapsed);
 
     // -- Get which thread has the best score
     size_t thread_with_bs = 0;  // Option to take will be always first col
@@ -91,9 +112,11 @@ int main(int argc, char** arg) {
         }
     }
     printf("DEBUG: Thread with best score is %zu\n", thread_with_bs);
+    printf("DEBUG: Best score is %i\n",
+        private_data[thread_with_bs].best_score);
 
     // -- Print the basegame
-    printf("DEBUG: Basegame\n");
+    printf("\n\nDEBUG: Basegame\n");
     for (int row = 0; row < 10; row++) {
         printf("DEBUG: %i  %s\n", row, matrix->gamezone[row]);
     }
@@ -130,7 +153,7 @@ int main(int argc, char** arg) {
             fprintf(stderr, "DEBUG: Invalid file \n");
             return EXIT_FAILURE;
         } else {
-            printf("DEBUG: File opened \n");
+            printf("DEBUG: File %s opened\n", game_result_path);
         }
         printf("DEBUG: Saving game %i\n", level);
         int offset = thread_with_bs*(matrix->depth + 1);
@@ -145,6 +168,7 @@ int main(int argc, char** arg) {
         destroy_matrix(best_game[i], matrix->gamezone_num_rows);
     }
     free(shared_data);
+    printf("\n\nDEBUG: Destroyed shared data\n");
 
     // -- Destroy private data
     for (size_t thread = 0; thread < thread_qty; thread++) {
@@ -153,9 +177,11 @@ int main(int argc, char** arg) {
         free(private_data[thread].save_best_game);
     }
     free(private_data);
+    printf("DEBUG: Destroyed private data\n");
 
     // -- Destroy threads
     free(threads);
+    printf("DEBUG: Destroyed threads\n");
 
     // -- Destroy initial game
     destroy_matrix(matrix, matrix->gamezone_num_rows);
