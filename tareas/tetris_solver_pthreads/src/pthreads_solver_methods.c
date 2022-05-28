@@ -201,3 +201,56 @@ void write_bestgame(FILE* file_pointer, game_t* best_game) {
         fprintf(file_pointer, "%c\n", best_game->figures[fig_num]);
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void* run_threads(void *params) {
+    private_data_t* data = (private_data_t*)params;
+    // -- Best game lookup level zero extracted
+    int current_level = 0;
+    game_t* clone = game_cloner(data->basegame);
+
+    // -- Blocks mapping computing
+    int init = block_start(data, data->thread_num,
+        data->basegame->gamezone_num_cols,
+        data->num_threads);
+    int end = block_finish(data, data->thread_num + 1,
+        data->basegame->gamezone_num_cols,
+        data->num_threads);
+    if (end > data->basegame->gamezone_num_cols) {
+        end = data->basegame->gamezone_num_cols;  // If goes beyond bounds
+    }
+
+    // -- Blocks mapping for columns
+    for (int col = init; col < end; col++) {
+        char figure = data->basegame->figures[current_level];
+        int num_rotations = get_tetris_figure_num_rotations(figure);
+        for (int rot = 0; rot < num_rotations; rot++) {
+            int row = figure_allocator(clone, figure, col, rot);
+            find_best_score(clone, current_level + 1, data);
+            if (data->save_best_game[current_level] == true) {
+                best_game_saver(data->shared_data->bg_matrix, clone,
+                current_level, data->save_best_game, data->thread_num);
+            }
+            if (row != -1) {
+                figure_remover(data->basegame, figure, col, row, rot);
+            }
+        }
+    }
+    destroy_matrix(clone, clone->gamezone_num_rows);
+    return NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int block_start(private_data_t* data, size_t i, int D, size_t w) {
+    int min = (data->basegame->gamezone_num_cols)%(data->num_threads);
+    if (data->thread_num <=
+        (data->basegame->gamezone_num_cols)%(data->num_threads)) {
+        min = data->thread_num;
+    }
+    return i*(D/w) + min;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int block_finish(private_data_t* data, size_t i, int D, size_t w) {
+    return block_start(data, i + 1, D, w);
+}

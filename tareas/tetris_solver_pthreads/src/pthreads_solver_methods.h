@@ -112,4 +112,33 @@ void best_game_saver(game_t** best_game, game_t* clone,
  */
 void write_bestgame(FILE* file_pointer, game_t* best_game);
 
+/**
+ * @brief Method to get block start for threads blocks mapping division.
+ * @param data Private data record for the thread.
+ * @param i Thread number.
+ * @param D Quantity of columns in the game.
+ * @param w Quantity of threads running.
+ * @return initial column to run over.
+ *
+ */
+int block_start(private_data_t* data, size_t i, int D, size_t w);
+
+/**
+ * @brief Method to get block finish for threads blocks mapping division.
+ * @param data Private data record for the thread.
+ * @param i Thread number.
+ * @param D Quantity of columns in the game.
+ * @param w Quantity of threads running.
+ * @return Last column to run over.
+ *
+ */
+int block_finish(private_data_t* data, size_t i, int D, size_t w);
+
+/**
+ * @brief Method to run the threads for data parallelization.
+ * @param data Private data record for the thread.
+ *
+ */
+void* run_threads(void *params);
+
 #endif

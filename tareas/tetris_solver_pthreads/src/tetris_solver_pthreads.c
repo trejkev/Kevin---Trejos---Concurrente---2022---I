@@ -9,9 +9,6 @@
 #include "pthreads_solver_methods.h"
 
 
-void* run(void *params);
-
-
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** arg) {
     // -- Set the amount of threads to be used
@@ -83,7 +80,7 @@ int main(int argc, char** arg) {
     // -- Concurrence begins here
     pthread_t* threads = (pthread_t*)calloc(thread_qty, sizeof(pthread_t));
     for (size_t i = 0; i < thread_qty; ++i) {
-        if (pthread_create(&threads[i], NULL, run,
+        if (pthread_create(&threads[i], NULL, run_threads,
             (void*)&private_data[i]) != EXIT_SUCCESS) {
             fprintf(stderr, "DEBUG: Could not create thread %zu.\n", i);
             return EXIT_FAILURE;
@@ -188,41 +185,4 @@ int main(int argc, char** arg) {
     printf("DEBUG: Destroyed initial game state\n");
 
     return EXIT_SUCCESS;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-void* run(void *params) {
-    private_data_t* data = (private_data_t*)params;
-    // -- Best game lookup level zero extracted
-    int current_level = 0;
-    game_t* clone = game_cloner(data->basegame);
-
-    int cols_per_thread =
-        (int)(data->basegame->gamezone_num_cols/data->num_threads);
-    int init = data->thread_num*cols_per_thread;
-    int end = init + cols_per_thread;
-    if (data->thread_num == data->num_threads - 1) {
-        end = data->basegame->gamezone_num_cols;  // Ensure all cols are covered
-    }
-
-    // -- Blocks mapping for columns
-    for (int col = init; col < end; col++) {
-        char figure = data->basegame->figures[current_level];
-        int num_rotations = get_tetris_figure_num_rotations(figure);
-        for (int rot = 0; rot < num_rotations; rot++) {
-            int row = figure_allocator(clone, figure, col, rot);
-            find_best_score(clone, current_level + 1, data);
-            if (data->save_best_game[current_level] == true) {
-                best_game_saver(data->shared_data->bg_matrix, clone,
-                current_level, data->save_best_game, data->thread_num);
-            }
-            if (row != -1) {
-                figure_remover(data->basegame, figure, col, row, rot);
-            }
-        }
-    }
-    destroy_matrix(clone, clone->gamezone_num_rows);
-    return NULL;
 }
