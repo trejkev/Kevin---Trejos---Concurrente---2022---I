@@ -19,8 +19,6 @@ int main(int argc, char** arg) {
             return EXIT_FAILURE;
         }
     }
-
-
     printf("DEBUG: Thread count is %zu\n", thread_qty);
 
     // -- Read the basegame file
@@ -97,7 +95,7 @@ int main(int argc, char** arg) {
     struct timespec finish_time;
     clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &finish_time);
 
-    double elapsed = (finish_time.tv_sec - start_time.tv_sec) + 
+    double elapsed = (finish_time.tv_sec - start_time.tv_sec) +
                     (finish_time.tv_nsec - start_time.tv_nsec)*1e-9;
 
     printf("DEBUG: Elapsed time is: %.9lf s\n", elapsed);

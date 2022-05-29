@@ -216,7 +216,6 @@ void* run_threads(void *params) {
     int end = block_finish(data->thread_num,
         data->basegame->gamezone_num_cols,
         data->num_threads);
-    printf("DEBUG: Thread %zu, init %i, end %i\n", data->thread_num, init, end);
 
     // -- Blocks mapping for columns
     for (int col = init; col < end; col++) {
@@ -244,7 +243,6 @@ int block_start(size_t i, int D, size_t w) {
      * D = Columns
      * w = Threads qty
     */
-    // printf("Thread number is %zu, columns %i, threads %zu\n", i, D, w);
     int min = i;
     if (i > D%w) {
         min = D%w;
