@@ -26,7 +26,7 @@ The whole description of the problem to solve can be found on these repositories
 
 With blocks mapping scheme, if there is a maximum of 10 threads (because there is a maximum of 10 columns to distribute the threads), the following distribution will happen.
 
-| Threads | Distribution of blocks (columns)                                                                                                                                                                                                                 |
+| **Threads** | **Distribution of blocks (columns)**                                                                                                                                                                                                                 |
 |:-------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |    1    | Thread 0: init 0, end 10                                                                                                                                                                                                                         |
 |    2    | Thread 0: init 0, end 5 Thread 1: init 5, end 10                                                                                                                                                                                                 |
@@ -48,7 +48,7 @@ With the increased amount of threads NOT necessarily the elapsed time enhances. 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848742-89b63d5a-1d57-4448-b6b1-be17762f7e5e.png">
 </p>
-<p align="center">Figure 1. Elapsed time versus threads for depth 5.</p>
+<p align="center">**Figure 1.** Elapsed time versus threads for depth 5.</p>
   
 To show that this behavior keeps up for all the different depths, see the figure 2. Here the effect is shadowed (and not evident for depth 0 because of its low time spent by each thread) by the evidence that every depth gives an offset to the elapsed time, where basically the higher the depth, the higher the elapsed time.
 
