@@ -35,10 +35,11 @@ To show that this behavior keeps up for all the different depths, see the follow
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848764-ccff2d09-98f0-407d-9366-df86c43b3b11.png">
 </p>
+<p align="center">Elapsed time versus depth, for thread 10.</p>
 
 In regards to the depth effect over the elapsed time, see the following figure, where it can be seen that no matter the number of threads, the elapsed time will increase if the depth increases.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848828-58ef807f-cbbf-4e1a-9bd6-429dc7deaedd.png">
 </p>
-<p align="center">Elapsed time versus depth, keeping fixed threads amount</p>
+<p align="center">Elapsed time versus depth, keeping fixed threads amount.</p>
