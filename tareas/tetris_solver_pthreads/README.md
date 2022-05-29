@@ -5,8 +5,8 @@ a certain amount of figures, and places one by one,  when reached the amount of 
 counts the amount of empty cells, and computes the metric as score = max_height - y_position_first_non-empty_cell.
 
 The whole description of the problem to solve can be found on these repositories, the first for serial solution, and the second for concurrent solution:
-1. https://github.com/jocan3/CI0117-2022-S1/tree/main/enunciados/tareas/01
-2. https://github.com/jocan3/CI0117-2022-S1/tree/main/enunciados/tareas/02
+1. Serial solution: https://github.com/jocan3/CI0117-2022-S1/tree/main/enunciados/tareas/01
+2. Concurrent solution: https://github.com/jocan3/CI0117-2022-S1/tree/main/enunciados/tareas/02
 
 ## Running the code:
   1. Make sure you are using a computer with the following libraries up and working:
