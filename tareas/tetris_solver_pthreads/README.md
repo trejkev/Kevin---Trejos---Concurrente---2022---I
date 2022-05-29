@@ -9,6 +9,7 @@ The whole description of the problem to solve can be found on these repositories
 2. Concurrent solution: https://github.com/jocan3/CI0117-2022-S1/tree/main/enunciados/tareas/02
 
 ## Running the code:
+
   1. Make sure you are using a computer with the following libraries up and working:
         a. stdbool.h
         b. stdio.h
@@ -21,6 +22,22 @@ The whole description of the problem to solve can be found on these repositories
   5. Wait for the program to end.
   6. Check files into /test for the txt files of the best game.
 
+## Blocks mapping scheme
+
+With blocks mapping scheme, if there is a maximum of 10 threads (because there is a maximum of 10 columns to distribute the threads), the following distribution will happen.
+
+| Threads | Distribution of blocks (columns)                                                                                                                                                                                                                 |
+|:-------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|    1    | Thread 0: init 0, end 10                                                                                                                                                                                                                         |
+|    2    | Thread 0: init 0, end 5 Thread 1: init 5, end 10                                                                                                                                                                                                 |
+|    3    | Thread 0: init 0, end 4 Thread 1: init 4, end 7 Thread 2: init 7, end 10                                                                                                                                                                         |
+|    4    | Thread 0: init 0, end 3 Thread 1: init 3, end 6 Thread 2: init 6, end 8 Thread 3: init 8, end 10                                                                                                                                                 |
+|    5    | Thread 0: init 0, end 2 Thread 1: init 2, end 4 Thread 2: init 4, end 6 Thread 3: init 6, end 8 Thread 4: init 8, end 10                                                                                                                         |
+|    6    | Thread 0: init 0, end 2 Thread 1: init 2, end 4 Thread 2: init 4, end 6 Thread 3: init 6, end 8 Thread 4: init 8, end 9 Thread 5: init 9, end 10                                                                                                 |
+|    7    | Thread 0: init 0, end 2 Thread 1: init 2, end 4 Thread 2: init 4, end 6 Thread 3: init 6, end 7 Thread 4: init 7, end 8 Thread 5: init 8, end 9 Thread 6: init 9, end 10                                                                         |
+|    8    | Thread 0: init 0, end 2 Thread 1: init 2, end 4 Thread 2: init 4, end 5 Thread 3: init 5, end 6 Thread 4: init 6, end 7 Thread 5: init 7, end 8 Thread 6: init 8, end 9 Thread 7: init 9, end 10                                                 |
+|    9    | Thread 0: init 0, end 2 Thread 1: init 2, end 3 Thread 2: init 3, end 4 Thread 3: init 4, end 5 Thread 4: init 5, end 6 Thread 5: init 6, end 7 Thread 6: init 7, end 8 Thread 7: init 8, end 9 Thread 8: init 9, end 10                         |
+|    10   | Thread 0: init 0, end 1 Thread 1: init 1, end 2 Thread 2: init 2, end 3 Thread 3: init 3, end 4 Thread 4: init 4, end 5 Thread 5: init 5, end 6 Thread 6: init 6, end 7 Thread 7: init 7, end 8 Thread 8: init 8, end 9 Thread 9: init 9, end 10 |
 
 ## Results:
 
