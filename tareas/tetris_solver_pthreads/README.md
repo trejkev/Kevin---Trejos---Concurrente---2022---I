@@ -27,7 +27,7 @@ A total of 60 trials were executed, using the first 6 levels of depth, and compu
 1. With increased amount of threads NOT necessarily the elapsed time enhances. In this steady state was because from 5 to 9, using block mapping, there is always at least one thread executing 2 columns, instead of 1 as the rest of the threads, reason why this thread leads the time that the program will late to complete all the tasks, this can be seen in the following figure, which shows the results for depth 5 (to make more evident the behavior), but varying the amount of threads.
 
 <p align="center">
-![Depth 5 data for all threads](https://user-images.githubusercontent.com/18760154/170848742-89b63d5a-1d57-4448-b6b1-be17762f7e5e.png)
+<img width="460" height="300" src=![Depth 5 data for all threads](https://user-images.githubusercontent.com/18760154/170848742-89b63d5a-1d57-4448-b6b1-be17762f7e5e.png)>
 </p>
   
 To show that this behavior keeps up for all the different depths, see the following figure. Here the effect is shadowed (and not evident for depth 0 because of its low time spent by each thread) by the evidence that every depth gives an offset to the elapsed time, where basically the higher the depth, the higher the elapsed time.
