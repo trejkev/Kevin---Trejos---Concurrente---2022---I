@@ -1,4 +1,4 @@
-# Tetris concurrent solver - Non optimized
+# Tetris concurrent solver using pthreads - Non optimized
 
 Description: These scripts are intended to solve the issue of finding the best possible game when playing tetris. It takes an initial state,
 a certain amount of figures, and places one by one,  when reached the amount of figures desired to place, a metric is computed, which basically
