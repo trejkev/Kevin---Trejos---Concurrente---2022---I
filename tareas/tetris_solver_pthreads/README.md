@@ -1,4 +1,4 @@
-Tetris concurrent solver - Non optimized
+# Tetris concurrent solver - Non optimized
 
 Description: These scripts are intended to solve the issue of finding the best possible game when playing tetris. It takes an initial state,
 a certain amount of figures, and places one by one,  when reached the amount of figures desired to place, a metric is computed, which basically
@@ -6,7 +6,7 @@ counts the amount of empty cells, and computes the metric as score = max_height 
 
 The whole description of the problem to solve can be found on this repository: https://github.com/jocan3/CI0117-2022-S1/tree/main/enunciados/tareas/01
 
-Running the code:
+## Running the code:
   1. Make sure you are using a computer with the following libraries up and working:
         a. stdbool.h
         b. stdio.h
@@ -20,7 +20,7 @@ Running the code:
   6. Check files into /test for the txt files of the best game.
 
 
-Results:
+## Results:
 
 A total of 60 trials were executed, using the first 6 levels of depth, and computing the time spent when the threads amount is varied from 1 (serial case) to 10 (maximum threads that can be used by the script), with only Visual Studio running. The results obtained are marvellous and will be explained below.
 
