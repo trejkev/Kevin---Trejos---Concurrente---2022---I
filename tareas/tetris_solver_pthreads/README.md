@@ -48,7 +48,7 @@ With the increased amount of threads NOT necessarily the elapsed time enhances. 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848742-89b63d5a-1d57-4448-b6b1-be17762f7e5e.png">
 </p>
-<p align="center">**Figure 1.** Elapsed time versus threads for depth 5.</p>
+<p align="center">Figure 1. Elapsed time versus threads for depth 5.</p>
   
 To show that this behavior keeps up for all the different depths, see the figure 2. Here the effect is shadowed (and not evident for depth 0 because of its low time spent by each thread) by the evidence that every depth gives an offset to the elapsed time, where basically the higher the depth, the higher the elapsed time.
 
