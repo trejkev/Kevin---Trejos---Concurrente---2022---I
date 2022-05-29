@@ -24,23 +24,23 @@ The whole description of the problem to solve can be found on this repository: h
 
 A total of 60 trials were executed, using the first 6 levels of depth, and computing the time spent when the amount of threads is varied from 1 (serial case) to 10 (maximum threads that can be used by the script), with only Visual Studio running. The results obtained are marvelous and will be explained below.
 
-1. With the increased amount of threads NOT necessarily the elapsed time enhances. In this steady-state was because from 5 to 9, using block mapping, there is always at least one thread executing 2 columns, instead of 1 as the rest of the threads, reason why this thread leads the time that the program will late to complete all the tasks, this can be seen in the following figure, which shows the results for depth 5 (to make more evident the behavior), but varying the number of threads.
+With the increased amount of threads NOT necessarily the elapsed time enhances. In this steady-state was because from 5 to 9, using block mapping, there is always at least one thread executing 2 columns, instead of 1 as the rest of the threads, reason why this thread leads the time that the program will late to complete all the tasks, this can be seen in the following figure, which shows the results for depth 5 (to make more evident the behavior), but varying the number of threads.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848742-89b63d5a-1d57-4448-b6b1-be17762f7e5e.png">
 </p>
-<p align="center">Figure 1. Elapsed time versus threads, for depth 5.</p>
+<p align="center">Figure 1. Elapsed time versus threads for depth 5.</p>
   
 To show that this behavior keeps up for all the different depths, see the figure 2. Here the effect is shadowed (and not evident for depth 0 because of its low time spent by each thread) by the evidence that every depth gives an offset to the elapsed time, where basically the higher the depth, the higher the elapsed time.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848764-ccff2d09-98f0-407d-9366-df86c43b3b11.png">
 </p>
-<p align="center">Figure 2. Elapsed time versus threads, keeping a fixed depth.</p>
+<p align="center">Figure 2. Elapsed time versus threads keeping a fixed depth.</p>
 
 In regards to the depth effect over the elapsed time, see the figure 3, where it can be seen that no matter the number of threads, the elapsed time will increase if the depth increases.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848828-58ef807f-cbbf-4e1a-9bd6-429dc7deaedd.png">
 </p>
-<p align="center">Figure 3. Elapsed time versus depth, keeping fixed threads amount.</p>
+<p align="center">Figure 3. Elapsed time versus depth keeping fixed threads amount.</p>
