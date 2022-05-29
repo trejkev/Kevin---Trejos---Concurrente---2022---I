@@ -121,7 +121,7 @@ void write_bestgame(FILE* file_pointer, game_t* best_game);
  * @return initial column to run over.
  *
  */
-int block_start(private_data_t* data, size_t i, int D, size_t w);
+int block_start(size_t i, int D, size_t w);
 
 /**
  * @brief Method to get block finish for threads blocks mapping division.
@@ -132,7 +132,7 @@ int block_start(private_data_t* data, size_t i, int D, size_t w);
  * @return Last column to run over.
  *
  */
-int block_finish(private_data_t* data, size_t i, int D, size_t w);
+int block_finish(size_t i, int D, size_t w);
 
 /**
  * @brief Method to run the threads for data parallelization.

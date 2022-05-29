@@ -19,6 +19,8 @@ int main(int argc, char** arg) {
             return EXIT_FAILURE;
         }
     }
+
+
     printf("DEBUG: Thread count is %zu\n", thread_qty);
 
     // -- Read the basegame file
@@ -96,9 +98,15 @@ int main(int argc, char** arg) {
     clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &finish_time);
 
     double elapsed = (finish_time.tv_sec - start_time.tv_sec) + 
-                     (finish_time.tv_nsec - start_time.tv_nsec)*1e-9;
+                    (finish_time.tv_nsec - start_time.tv_nsec)*1e-9;
 
     printf("DEBUG: Elapsed time is: %.9lf s\n", elapsed);
+
+    // -- Save times from this scenario
+    FILE *fptr2;
+    fptr2 = fopen("test/times_depth.csv", "a");
+    fprintf(fptr2, "%zu;%i;%.9lf;\n", thread_qty, matrix->depth, elapsed);
+    fclose(fptr2);
 
     // -- Get which thread has the best score
     size_t thread_with_bs = 0;  // Option to take will be always first col
@@ -143,10 +151,10 @@ int main(int argc, char** arg) {
         char game_result_path[24];
         snprintf(game_result_path, sizeof(game_result_path), "%s%d%s",
             "test/tetris_play_", level, ".txt");
-        FILE *fptr;
-        fptr = fopen(game_result_path, "w");
+        FILE *fptr3;
+        fptr3 = fopen(game_result_path, "w");
         // Check if  file opened correctly
-        if (!fptr) {
+        if (!fptr3) {
             fprintf(stderr, "DEBUG: Invalid file \n");
             return EXIT_FAILURE;
         } else {
@@ -154,8 +162,8 @@ int main(int argc, char** arg) {
         }
         printf("DEBUG: Saving game %i\n", level);
         int offset = thread_with_bs*(matrix->depth + 1);
-        write_bestgame(fptr, shared_data->bg_matrix[offset + level]);
-        fclose(fptr);
+        write_bestgame(fptr3, shared_data->bg_matrix[offset + level]);
+        fclose(fptr3);
     }
 
 

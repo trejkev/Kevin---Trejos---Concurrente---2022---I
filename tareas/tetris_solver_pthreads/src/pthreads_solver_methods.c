@@ -210,15 +210,13 @@ void* run_threads(void *params) {
     game_t* clone = game_cloner(data->basegame);
 
     // -- Blocks mapping computing
-    int init = block_start(data, data->thread_num,
+    int init = block_start(data->thread_num,
         data->basegame->gamezone_num_cols,
         data->num_threads);
-    int end = block_finish(data, data->thread_num + 1,
+    int end = block_finish(data->thread_num,
         data->basegame->gamezone_num_cols,
         data->num_threads);
-    if (end > data->basegame->gamezone_num_cols) {
-        end = data->basegame->gamezone_num_cols;  // If goes beyond bounds
-    }
+    printf("DEBUG: Thread %zu, init %i, end %i\n", data->thread_num, init, end);
 
     // -- Blocks mapping for columns
     for (int col = init; col < end; col++) {
@@ -241,16 +239,20 @@ void* run_threads(void *params) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int block_start(private_data_t* data, size_t i, int D, size_t w) {
-    int min = (data->basegame->gamezone_num_cols)%(data->num_threads);
-    if (data->thread_num <=
-        (data->basegame->gamezone_num_cols)%(data->num_threads)) {
-        min = data->thread_num;
+int block_start(size_t i, int D, size_t w) {
+    /* i = Thread number
+     * D = Columns
+     * w = Threads qty
+    */
+    // printf("Thread number is %zu, columns %i, threads %zu\n", i, D, w);
+    int min = i;
+    if (i > D%w) {
+        min = D%w;
     }
     return i*(D/w) + min;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int block_finish(private_data_t* data, size_t i, int D, size_t w) {
-    return block_start(data, i + 1, D, w);
+int block_finish(size_t i, int D, size_t w) {
+    return block_start(i + 1, D, w);
 }
