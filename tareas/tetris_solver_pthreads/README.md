@@ -29,17 +29,18 @@ A total of 60 trials were executed, using the first 6 levels of depth, and compu
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848742-89b63d5a-1d57-4448-b6b1-be17762f7e5e.png">
 </p>
+<p align="center">Figure 1. Elapsed time versus threads, for depth 5.</p>
   
-To show that this behavior keeps up for all the different depths, see the following figure. Here the effect is shadowed (and not evident for depth 0 because of its low time spent by each thread) by the evidence that every depth gives an offset to the elapsed time, where basically the higher the depth, the higher the elapsed time.
+To show that this behavior keeps up for all the different depths, see the figure 2. Here the effect is shadowed (and not evident for depth 0 because of its low time spent by each thread) by the evidence that every depth gives an offset to the elapsed time, where basically the higher the depth, the higher the elapsed time.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848764-ccff2d09-98f0-407d-9366-df86c43b3b11.png">
 </p>
-<p align="center">Elapsed time versus threads, keeping a fixed depth.</p>
+<p align="center">Figure 2. Elapsed time versus threads, keeping a fixed depth.</p>
 
-In regards to the depth effect over the elapsed time, see the following figure, where it can be seen that no matter the number of threads, the elapsed time will increase if the depth increases.
+In regards to the depth effect over the elapsed time, see the figure 3, where it can be seen that no matter the number of threads, the elapsed time will increase if the depth increases.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/170848828-58ef807f-cbbf-4e1a-9bd6-429dc7deaedd.png">
 </p>
-<p align="center">Elapsed time versus depth, keeping fixed threads amount.</p>
+<p align="center">Figure 3. Elapsed time versus depth, keeping fixed threads amount.</p>
