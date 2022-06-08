@@ -17,7 +17,6 @@ typedef struct shared_data {
     size_t thread_count;
     pthread_mutex_t can_access_position;
     pthread_mutex_t can_access_counter;
-    pthread_mutex_t conditional_mutex;
     pthread_barrier_t barrier;
     pthread_cond_t condvar;
     size_t counter;
@@ -61,8 +60,7 @@ int create_threads(size_t thread_count) {
             pthread_cond_init(&shared_data->condvar, NULL);
             pthread_mutex_init(&shared_data->can_access_position, NULL);
             pthread_mutex_init(&shared_data->can_access_counter, NULL);
-            pthread_mutex_init(&shared_data->conditional_mutex, NULL);
-            pthread_barrier_init(&shared_data->barrier, NULL, thread_count);
+            // pthread_barrier_init(&shared_data->barrier, NULL, thread_count);
 
             for (size_t i = 0; i < thread_count; ++i) {
                 private_data[i].thread_num = i;
@@ -79,8 +77,8 @@ int create_threads(size_t thread_count) {
             }
 
             free(private_data);
-            pthread_mutex_destroy(&shared_data->can_access_position);
-            pthread_barrier_destroy(&shared_data->barrier);
+            // pthread_mutex_destroy(&shared_data->can_access_position);
+            // pthread_barrier_destroy(&shared_data->barrier);
             free(shared_data);
 
         } else {
@@ -102,21 +100,19 @@ void* run(void* params) {
     private_data_t* data = (private_data_t*)params;
     shared_data_t* shared_data = data->shared_data;
 
-    pthread_mutex_lock(&shared_data->can_access_counter);
-    shared_data->counter++;
-
     printf("Thread %zu/%zu: is waiting...\n", data->thread_num,
             data->shared_data->thread_count);
-    
+
+    pthread_mutex_lock(&shared_data->can_access_counter);
+    shared_data->counter++;
     if (shared_data->counter < shared_data->thread_count) {
         pthread_cond_wait(&shared_data->condvar,
             &shared_data->can_access_counter);
-        pthread_mutex_unlock(&shared_data->can_access_counter);
     } else {
         pthread_cond_broadcast(&shared_data->condvar);
         printf("Thread %zu made the broadcast!\n", data->thread_num);
-        pthread_mutex_unlock(&shared_data->can_access_counter);
     }
+    pthread_mutex_unlock(&shared_data->can_access_counter);
 
     pthread_mutex_lock(&shared_data->can_access_position);
     data->shared_data->position++;
