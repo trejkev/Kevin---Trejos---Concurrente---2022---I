@@ -41,7 +41,7 @@ With blocks mapping scheme, if there is a maximum of 10 threads (because there i
 
 ## Results:
 
-A total of 60 trials were executed, using the first 6 levels of depth, and computing the time spent when the amount of threads is varied from 1 (serial case) to 10 (maximum threads that can be used by the script), with only Visual Studio running. The results obtained are marvelous and will be explained below.
+A total of 60 trials were executed, using the first 6 levels of depth, and computing the time spent when the amount of threads is varied from 1 (serial case) to 10 (maximum threads that can be used by the script), with only Visual Studio running (see file test/times_depth.csv for individual results). The results obtained are marvelous and will be explained below.
 
 With the increased amount of threads NOT necessarily the elapsed time enhances. In this steady-state was because from 5 to 9, using block mapping, there is always at least one thread executing 2 columns, instead of 1 as the rest of the threads, reason why this thread leads the time that the program will late to complete all the tasks, this can be seen in the following figure, which shows the results for depth 5 (to make more evident the behavior), but varying the number of threads.
 
