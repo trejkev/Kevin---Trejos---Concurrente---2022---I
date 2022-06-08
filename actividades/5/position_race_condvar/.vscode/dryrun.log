@@ -1,0 +1,5 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/home/kevin/Documents/Maestria PCI/Paralela y Concurrente/Kevin-Trejos-Concurrente-2022-I/actividades/5/position_race_condvar'
+make: Nothing to be done for 'all'.
+make: Leaving directory '/home/kevin/Documents/Maestria PCI/Paralela y Concurrente/Kevin-Trejos-Concurrente-2022-I/actividades/5/position_race_condvar'
+ 
