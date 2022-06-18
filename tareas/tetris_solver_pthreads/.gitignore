@@ -1,3 +1,4 @@
 /bin
 /build
 /test/tetris_play*
+/.vscode
