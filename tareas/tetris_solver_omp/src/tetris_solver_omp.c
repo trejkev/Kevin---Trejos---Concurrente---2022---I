@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <math.h>
-#include "pthreads_solver_methods.h"
+#include "omp_solver_methods.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////

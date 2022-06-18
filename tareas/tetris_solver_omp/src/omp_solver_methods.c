@@ -1,6 +1,6 @@
 // Copyright 2022 Kevin Trejos Vargas <kevin.trejosvargas@ucr.ac.cr>
 
-#include "pthreads_solver_methods.h"
+#include "omp_solver_methods.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 int find_best_score(game_t* matrix, int current_level, private_data_t* data) {
