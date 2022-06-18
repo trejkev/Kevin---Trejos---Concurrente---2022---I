@@ -1,0 +1,7 @@
+{
+    "makefile.extensionOutputFolder": "./.vscode",
+    "files.associations": {
+        "serial_solver_methods.h": "c"
+    },
+    "git.ignoreLimitWarning": true
+}

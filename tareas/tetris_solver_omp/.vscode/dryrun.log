@@ -1,0 +1,11 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/kevin/Documents/Maestria PCI/Paralela y Concurrente/Kevin-Trejos-Concurrente-2022-I/tareas/tetris_solver_omp'
+mkdir -p build/src/
+cc -std=gnu11 -c -Wall -Wextra src/pthreads_solver_methods.c -o build/src/pthreads_solver_methods.o -pthread  -lm
+cc -std=gnu11 -c -Wall -Wextra src/tetris_figure_factory.c -o build/src/tetris_figure_factory.o -pthread  -lm
+cc -std=gnu11 -c -Wall -Wextra src/tetris_solver_pthreads.c -o build/src/tetris_solver_pthreads.o -pthread  -lm
+cc -std=gnu11 -c -Wall -Wextra src/reader.c -o build/src/reader.o -pthread  -lm
+mkdir -p bin/
+cc -std=gnu11 -Wall -Wextra build/src/pthreads_solver_methods.o build/src/tetris_figure_factory.o build/src/tetris_solver_pthreads.o build/src/reader.o -o bin/tetris_solver_pthreads -pthread  -lm
+make: Leaving directory '/home/kevin/Documents/Maestria PCI/Paralela y Concurrente/Kevin-Trejos-Concurrente-2022-I/tareas/tetris_solver_omp'
+ 
