@@ -3,6 +3,7 @@
 
 #include <errno.h>
 #include <pthread.h>
+#include <omp.h>
 #include <unistd.h>
 #include <time.h>
 #include <math.h>
@@ -62,8 +63,8 @@ int main(int argc, char** arg) {
     shared_data->bg_matrix = best_game;
 
     // -- Private data for each thread
-    private_data_t* private_data = (private_data_t*)malloc(
-        thread_qty * sizeof(private_data_t));
+    private_data_t* private_data = (private_data_t*)calloc(
+        thread_qty, sizeof(private_data_t));
     for (size_t thread = 0; thread < thread_qty; thread++) {
         private_data[thread].basegame = game_cloner(matrix);
         private_data[thread].best_score = matrix->gamezone_num_rows;
@@ -78,19 +79,12 @@ int main(int argc, char** arg) {
     clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &start_time);
 
     // -- Concurrence begins here
-    pthread_t* threads = (pthread_t*)calloc(thread_qty, sizeof(pthread_t));
-    for (size_t i = 0; i < thread_qty; ++i) {
-        if (pthread_create(&threads[i], NULL, run_threads,
-            (void*)&private_data[i]) != EXIT_SUCCESS) {
-            fprintf(stderr, "DEBUG: Could not create thread %zu.\n", i);
-            return EXIT_FAILURE;
-        }
+    #pragma omp parallel num_threads(thread_qty) shared(private_data) \
+        default(none)
+    {
+        run_threads(&private_data[omp_get_thread_num()]);
     }
-    // -- Wait for all threads to complete
-    for (size_t thread = 0; thread < thread_qty; thread++) {
-        pthread_join(threads[thread], NULL);
-    }
-    printf("DEBUG: Threads joint completed\n");
+    #pragma omp barrier  // Wait for all threads to complete
 
     struct timespec finish_time;
     clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &finish_time);
@@ -183,8 +177,8 @@ int main(int argc, char** arg) {
     printf("DEBUG: Destroyed private data\n");
 
     // -- Destroy threads
-    free(threads);
-    printf("DEBUG: Destroyed threads\n");
+    // free(threads);
+    // printf("DEBUG: Destroyed threads\n");
 
     // -- Destroy initial game
     destroy_matrix(matrix, matrix->gamezone_num_rows);

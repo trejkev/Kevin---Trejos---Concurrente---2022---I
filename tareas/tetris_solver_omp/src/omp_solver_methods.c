@@ -203,8 +203,9 @@ void write_bestgame(FILE* file_pointer, game_t* best_game) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void* run_threads(void *params) {
-    private_data_t* data = (private_data_t*)params;
+// void* run_threads(void *params) {
+void* run_threads(private_data_t *data) {
+    // private_data_t* data = (private_data_t*)params;
     // -- Best game lookup level zero extracted
     int current_level = 0;
     game_t* clone = game_cloner(data->basegame);

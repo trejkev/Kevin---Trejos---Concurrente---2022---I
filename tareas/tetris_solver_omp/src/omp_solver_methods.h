@@ -4,6 +4,7 @@
 #define T_SERIAL_PG_H
 
 #include <stdbool.h>
+#include <omp.h>
 #include "reader.h"
 #include "tetris_figure_factory.h"
 
@@ -139,6 +140,7 @@ int block_finish(size_t i, int D, size_t w);
  * @param data Private data record for the thread.
  *
  */
-void* run_threads(void *params);
+// void* run_threads(void *params);
+void* run_threads(private_data_t *data);
 
 #endif
