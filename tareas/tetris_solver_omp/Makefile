@@ -1,4 +1,4 @@
-APPNAME=tetris_solver_pthreads
+APPNAME=tetris_solver_omp
 DIRS=src
 HEADERS=$(wildcard $(DIRS:%=%/*.h))
 SOURCES=$(wildcard $(DIRS:%=%/*.c))
@@ -7,7 +7,7 @@ EXEFILE=bin/$(APPNAME)
 
 CC=cc -std=gnu11
 CFLAGS=-Wall -Wextra
-LIBS= -pthread 
+LIBS= -fopenmp 
 LIBS2= -lm
 
 LINTFILTERS=$\

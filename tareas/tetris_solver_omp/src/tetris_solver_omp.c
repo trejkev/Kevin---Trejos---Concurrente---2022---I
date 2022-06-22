@@ -63,7 +63,7 @@ int main(int argc, char** arg) {
     shared_data->bg_matrix = best_game;
 
     // -- Private data for each thread
-    private_data_t* private_data;
+    // private_data_t* private_data;
     private_data_t* all_private_data = (private_data_t*)calloc(
         thread_qty, sizeof(private_data_t));
 
@@ -83,33 +83,32 @@ int main(int argc, char** arg) {
     clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &start_time);
 
     // -- Concurrence begins here
-    #pragma omp parallel num_threads(thread_qty) private(private_data) \
-        shared(shared_data, matrix, thread_qty, all_private_data) default(none)
-    {
-        private_data = (private_data_t*)calloc(thread_qty, sizeof(private_data_t));
-        private_data[omp_get_thread_num()].basegame = game_cloner(matrix);
-        private_data[omp_get_thread_num()].best_score = matrix->gamezone_num_rows;
-        private_data[omp_get_thread_num()].num_threads = thread_qty;
-        private_data[omp_get_thread_num()].thread_num = omp_get_thread_num();
-        private_data[omp_get_thread_num()].shared_data = shared_data;
-        private_data[omp_get_thread_num()].save_best_game =
+    #pragma omp parallel num_threads(thread_qty) \
+        shared(shared_data, matrix, thread_qty, all_private_data) \
+        default(none) {
+        private_data_t* private_data;
+        private_data = (private_data_t*)calloc(1, sizeof(private_data_t));
+        private_data->basegame = game_cloner(matrix);
+        private_data->best_score = matrix->gamezone_num_rows;
+        private_data->num_threads = thread_qty;
+        private_data->thread_num = omp_get_thread_num();
+        private_data->shared_data = shared_data;
+        private_data->save_best_game =
             (bool*)calloc(matrix->depth + 1, sizeof(bool));
-        run_threads(&private_data[omp_get_thread_num()]);
+        run_threads(&private_data[0]);
 
-        #pragma omp critical
-        {
-            all_private_data[omp_get_thread_num()].best_score =
-                private_data[omp_get_thread_num()].best_score;
-            all_private_data[omp_get_thread_num()].thread_num =
-                private_data[omp_get_thread_num()].thread_num;
-        }
+        // Not critical because it is thread safe
+        all_private_data[omp_get_thread_num()].best_score =
+            private_data->best_score;
+        all_private_data[omp_get_thread_num()].thread_num =
+            private_data->thread_num;
+
         // -- Destroy private data
-        destroy_matrix(private_data[omp_get_thread_num()].basegame,
+        destroy_matrix(private_data->basegame,
             matrix->gamezone_num_rows);
-        free(private_data[omp_get_thread_num()].save_best_game);
+        free(private_data->save_best_game);
+        free(private_data);
     }
-    #pragma omp barrier  // Wait for all threads to complete
-    // free(private_data);
 
     struct timespec finish_time;
     clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &finish_time);
@@ -194,11 +193,11 @@ int main(int argc, char** arg) {
 
     // // -- Destroy private data
     // for (size_t thread = 0; thread < thread_qty; thread++) {
-    //     destroy_matrix(private_data[thread].basegame,
+    //     destroy_matrix(all_private_data[thread].basegame,
     //         matrix->gamezone_num_rows);
-    //     free(private_data[thread].save_best_game);
+    //     free(all_private_data[thread].save_best_game);
     // }
-    // free(private_data);
+    free(all_private_data);
     printf("DEBUG: Destroyed private data\n");
 
     // -- Destroy threads
