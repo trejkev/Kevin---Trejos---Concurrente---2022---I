@@ -85,7 +85,8 @@ int main(int argc, char** arg) {
     // -- Concurrence begins here
     #pragma omp parallel num_threads(thread_qty) \
         shared(shared_data, matrix, thread_qty, all_private_data) \
-        default(none) {
+        default(none)
+        {
         private_data_t* private_data;
         private_data = (private_data_t*)calloc(1, sizeof(private_data_t));
         private_data->basegame = game_cloner(matrix);
