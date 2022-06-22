@@ -1,6 +1,7 @@
 // Copyright 2022 Kevin Trejos Vargas <kevin.trejosvargas@ucr.ac.cr>
 // Reading script based in Jose Andres Mena <jose.menaarias@ucr.ac.cr> code
 
+#include <time.h>
 #include "serial_solver_methods.h"
 
 
@@ -45,8 +46,10 @@ int main() {
     // -- Variable to keep locking the best game savings per level
     bool* save_best_game = (bool*)calloc(matrix->depth + 1, sizeof(bool));
 
+    struct timespec start_time;
+    clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &start_time);
 
-       // -- Best game lookup level zero extracted
+    // -- Best game lookup level zero extracted
     int current_level = 0;
     game_t* clone = game_cloner(matrix);
     for (int col = 0; col < clone->gamezone_num_cols; col++) {
@@ -66,6 +69,20 @@ int main() {
         }
     }
     destroy_matrix(clone);
+
+    struct timespec finish_time;
+    clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &finish_time);
+
+    double elapsed = (finish_time.tv_sec - start_time.tv_sec) +
+                    (finish_time.tv_nsec - start_time.tv_nsec)*1e-9;
+
+    printf("DEBUG: Elapsed time is: %.9lf s\n", elapsed);
+
+    // -- Save times from this scenario
+    FILE *fptr2;
+    fptr2 = fopen("test/times_depth.csv", "a");
+    fprintf(fptr2, "%i;%.9lf;\n", matrix->depth, elapsed);
+    fclose(fptr2);
 
 
     // -- Print the basegame
