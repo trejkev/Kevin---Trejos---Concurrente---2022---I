@@ -1,4 +1,4 @@
-APPNAME=tetris_solver_serial
+APPNAME=tetris_solver_pthreads
 DIRS=src
 HEADERS=$(wildcard $(DIRS:%=%/*.h))
 SOURCES=$(wildcard $(DIRS:%=%/*.c))
