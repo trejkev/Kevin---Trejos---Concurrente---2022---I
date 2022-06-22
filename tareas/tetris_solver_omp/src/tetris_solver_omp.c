@@ -5,7 +5,6 @@
 #include <pthread.h>
 #include <omp.h>
 #include <unistd.h>
-#include <time.h>
 #include <math.h>
 #include "omp_solver_methods.h"
 
@@ -66,8 +65,7 @@ int main(int argc, char** arg) {
     private_data_t* all_private_data = (private_data_t*)calloc(
         thread_qty, sizeof(private_data_t));
 
-    struct timespec start_time;
-    clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &start_time);
+    double start_time = omp_get_wtime();
 
     // -- Concurrence begins here
     #pragma omp parallel num_threads(thread_qty) \
@@ -101,13 +99,11 @@ int main(int argc, char** arg) {
             omp_get_thread_num());
     }
 
-    struct timespec finish_time;
-    clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &finish_time);
+    double finish_time = omp_get_wtime();
 
-    double elapsed = (finish_time.tv_sec - start_time.tv_sec) +
-                    (finish_time.tv_nsec - start_time.tv_nsec)*1e-9;
+    double elapsed = finish_time - start_time;
 
-    printf("DEBUG: Elapsed time is: %.9lf s\n", elapsed);
+    printf("DEBUG: Elapsed time is: %f s\n", elapsed);
 
     // -- Save times from this scenario
     FILE *fptr2;
