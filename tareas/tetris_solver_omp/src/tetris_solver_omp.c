@@ -62,22 +62,9 @@ int main(int argc, char** arg) {
         (shared_data_t*)calloc(1, sizeof(shared_data_t));
     shared_data->bg_matrix = best_game;
 
-    // -- Private data for each thread
-    // private_data_t* private_data;
+    // -- Private data for each thread out of parallel section
     private_data_t* all_private_data = (private_data_t*)calloc(
         thread_qty, sizeof(private_data_t));
-
-    // private_data_t* private_data = (private_data_t*)calloc(
-    //     thread_qty, sizeof(private_data_t));
-    // for (size_t thread = 0; thread < thread_qty; thread++) {
-    //     private_data[thread].basegame = game_cloner(matrix);
-    //     private_data[thread].best_score = matrix->gamezone_num_rows;
-    //     private_data[thread].num_threads = thread_qty;
-    //     private_data[thread].thread_num = thread;
-    //     private_data[thread].shared_data = shared_data;
-    //     private_data[thread].save_best_game =
-    //         (bool*)calloc(matrix->depth + 1, sizeof(bool));
-    // }
 
     struct timespec start_time;
     clock_gettime(/*clk_id*/ CLOCK_MONOTONIC, &start_time);
@@ -96,6 +83,7 @@ int main(int argc, char** arg) {
         private_data->shared_data = shared_data;
         private_data->save_best_game =
             (bool*)calloc(matrix->depth + 1, sizeof(bool));
+
         run_threads(&private_data[0]);
 
         // Not critical because it is thread safe
@@ -109,6 +97,8 @@ int main(int argc, char** arg) {
             matrix->gamezone_num_rows);
         free(private_data->save_best_game);
         free(private_data);
+        printf("DEBUG: Destroyed private data for thread %i\n",
+            omp_get_thread_num());
     }
 
     struct timespec finish_time;
@@ -192,18 +182,9 @@ int main(int argc, char** arg) {
     free(shared_data);
     printf("\n\nDEBUG: Destroyed shared data\n");
 
-    // // -- Destroy private data
-    // for (size_t thread = 0; thread < thread_qty; thread++) {
-    //     destroy_matrix(all_private_data[thread].basegame,
-    //         matrix->gamezone_num_rows);
-    //     free(all_private_data[thread].save_best_game);
-    // }
+    // -- Destroy private data out of parallel section
     free(all_private_data);
-    printf("DEBUG: Destroyed private data\n");
-
-    // -- Destroy threads
-    // free(threads);
-    // printf("DEBUG: Destroyed threads\n");
+    printf("DEBUG: Destroyed private data out of parallel section\n");
 
     // -- Destroy initial game
     destroy_matrix(matrix, matrix->gamezone_num_rows);
