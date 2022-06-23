@@ -9,6 +9,8 @@ The whole description of the problem to solve can be found on these repositories
 2. Concurrent solution using pthreads: https://github.com/jocan3/CI0117-2022-S1/tree/main/enunciados/tareas/02
 3. Concurrent solution using OpenMP: https://github.com/jocan3/CI0117-2022-S1/tree/main/enunciados/tareas/03
 
+Results analysis of the comparison can be found in this link: https://github.com/trejkev/Kevin-Trejos-Concurrente-2022-I/blob/main/tareas/tetris_solver_omp/report/README.md
+
 ## Running the code:
 
   1. Make sure you are using a computer with the following libraries and modules up and working:
