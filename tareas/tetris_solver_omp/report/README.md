@@ -179,23 +179,30 @@ Regarding serial to concurrent comparison, the data analysis focused on speedup 
 </p>
 <p align="center">Figure 8. Speedup of concurrent methodologies compared to serial methodology.</p>
 
+To analyze the efficiency see the figure 9, where it is visually demonstrated that speedup does not justifies threads quantity, which means that with increased threads, even when speedup grows, the quantity of threads does not justify the speed increase.
+
+<p align="center">
+<img width="600" src="https://user-images.githubusercontent.com/18760154/175407836-709cafea-091e-4ed1-8061-9005705fe121.png">
+</p>
+<p align="center">Figure 9. Efficiency of concurrent methodologies compared to serial methodology.</p>
+
 
 ## Concurrency grade analysis
 
-In first place, the two concurrent methodologies were compared their multithreaded scenarios with their own one-threaded scenario, in general terms the code is the same, however, by dividing to conquer, the task of finding the best solution for the game could converge faster when using multiple threads. To demonstrate this theory, their times were calculated as shown in tables a speedup from 2.84 to 4.47 approximately was obtained, it can be confirmed in figure 6.
+In first place, the two concurrent methodologies were compared their multithreaded scenarios with their own one-threaded scenario, in general terms the code is the same, however, by dividing to conquer, the task of finding the best solution for the game could converge faster when using multiple threads. To demonstrate this theory, their times were calculated as shown in tables a speedup from 2.84 to 4.47 approximately was obtained, it can be confirmed in figure 10.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/175379446-4bb82eda-0741-4996-a821-f5966ab8c683.png">
 </p>
-<p align="center">Figure 6. Speedup of multithreaded solutions vs one-threaded solution.</p>
+<p align="center">Figure 10. Speedup of multithreaded solutions vs one-threaded solution.</p>
 
-After making this metric work, a question that arises is, is higher speedup meaning better resourses usage? And the answer is: not necessarily. For this reason, efficiency was also measured, to check how many threads give the best efficiency, and as shown in figure 7, surprisingly the scenario with lower threads is the one with the best efficiency and it gets lower when increasing the amount of threads, this is because the growth in the speedup happens to be lower, compared to the increase in the threads quantity, so at the end speedup is unable to justify the increase in the threads number.
+After making this metric work, a question that arises is, is higher speedup meaning better resourses usage? And the answer is: not necessarily. For this reason, efficiency was also measured, to check how many threads give the best efficiency, and as shown in figure 11, surprisingly the scenario with lower threads is the one with the best efficiency and it gets lower when increasing the amount of threads, this is because the growth in the speedup happens to be lower, compared to the increase in the threads quantity, so at the end speedup is unable to justify the increase in the threads number.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/175379715-2aa76cd8-fa08-4375-bc0c-75232dd19d44.png">
 </p>
-<p align="center">Figure 7. Efficiency of concurrent solutions.</p>
+<p align="center">Figure 11. Efficiency of concurrent solutions.</p>
 
-As shown in figures 6 and 7, OpenMP happens to show a lower speedup and lower efficiency than pthreads approach. This is probably because OpenMP forced the code to declare, assign, and delete private data into parallel section, while Pthreads approach, because of its lower limitations in private data management, does not have these tasks into parallel section.
+As shown in figures 10 and 11, OpenMP happens to show a lower speedup and lower efficiency than pthreads approach. This is probably because OpenMP forced the code to declare, assign, and delete private data into parallel section, while Pthreads approach, because of its lower limitations in private data management, does not have these tasks into parallel section.
 
 When comparing the times obtained from both of the approaches, it can be seen that OpenMP gives a lower elapsed time than Pthreads (but really close one eachother for every sample), and that these both give a a lower elapsed time than serial approach. Serial to concurrent is an obvious explanation, but OpenMP to Pthreads could not be the case, however, short explanation is that OpenMP is a library developed to easily deal with concurrent solutions, and probably it was optimized at the same time, reason why times obtained with OpenMP are slightly better than times obtained with Pthreads approach developed from zero, however, differences are in the order of ms, thus this is not conclusive, bet that even if performing a hypothesis test with a low confidence level.
