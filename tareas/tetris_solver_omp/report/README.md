@@ -70,7 +70,7 @@ Table 1. Serial methodology data.
 | **Depth** | **Elapsed time (s)** |
 |:---------:|:--------------------:|
 |     4     |     488.008738379    |
-|     4     |     487.416009964    |
+|     4     |  **487.416009964**   |
 |     4     |     488.285397118    |
 
 Table 2. Pthreads concurrent methodology.
