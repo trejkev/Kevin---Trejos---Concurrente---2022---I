@@ -111,9 +111,26 @@ Table 3. OpenMP concurrent methodology for concurrency grade analysis.
 |          20          |     4     |      93.4250604      |
 |          20          |     4     |      93.44776767     |
 
-Table 4. 
+Table 4. Pthreads concurrent methodology for optimizations analysis.
+| **Threads quantity** | **Depth** | **Elapsed time (s)** |
+|:--------------------:|:---------:|:--------------------:|
+|           4          |     4     |   **133.194794873**  |
+|           4          |     4     |     134.948111815    |
+|           4          |     4     |     133.725012832    |
+|           5          |     4     |     121.054371011    |
+|           5          |     4     |   **119.845575457**  |
+|           5          |     4     |     121.138987748    |
+|           6          |     4     |   **118.992988735**  |
+|           6          |     4     |     120.403135772    |
+|           6          |     4     |     119.629402012    |
+|           7          |     4     |   **100.000256299**  |
+|           7          |     4     |     100.141582806    |
+|           7          |     4     |     100.348089576    |
+|           8          |     4     |     99.570538755     |
+|           8          |     4     |   **99.372605173**   |
+|           8          |     4     |     100.045205443    |
 
-Table 5. OpenMP concurrent methodology for  optimizations analysis.
+Table 5. OpenMP concurrent methodology for optimizations analysis.
 | **Threads quantity** | **Depth** | **Elapsed time (s)** |
 |:--------------------:|:---------:|:--------------------:|
 |           4          |     4     |     134.958747658    |
