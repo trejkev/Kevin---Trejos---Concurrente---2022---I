@@ -160,6 +160,8 @@ In regards to speedup of OpenMP against Pthreads, since OpenMP introduced privat
 </p>
 <p align="center">Figure 6. Speedup of OpenMP compared to Pthreads.</p>
 
+To show this extra task that OpenMP has to perform refer to figure 3 or 5, where lines from 71 to 100 are the lines for concurrency used by OpenMP approach, Pthreads runs only line 85 (skipping pthreads required methods and so).
+
 
 ## Concurrency grade analysis
 
