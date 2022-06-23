@@ -151,6 +151,7 @@ Table 5. OpenMP concurrent methodology for optimizations analysis.
 
 ## Optimizations analysis
 
+### Concurrent methodologies comparison
 For this analysis, all the different approaches were compared to eachother, however, the analysis is focused only on the relevant data found during the analysis.
 
 In regards to speedup of OpenMP against Pthreads, since OpenMP introduced private data record creation, memory assignment, and memory release, its execution is slightly slower than Pthreads approach, it can be observed in figure 6, where clearly they both are pretty close, but definitively Pthreads is a better time optimizer than OpenMP.
@@ -168,6 +169,15 @@ Because of these short differencies in speedup when increasing the quantity of t
 <p align="center">Figure 7. Efficiency of OpenMP compared to Pthreads.</p>
 
 To show this extra task that OpenMP has to perform refer to figure 3 or 5, where lines from 71 to 100 are the lines for concurrency used by OpenMP approach, Pthreads runs only line 85 (skipping pthreads required methods and so).
+
+### Concurrent to serial methodologies comparison
+
+Regarding serial to concurrent comparison, the data analysis focused on speedup of each concurrent methodology to serial approach, in figure 8 can be seen that with higher threads quantity speedup tends to increase, but not linearly, this might be because of the block mapping scheme used, which may have an overloaded thread to complete the task.
+
+<p align="center">
+<img width="600" src="https://user-images.githubusercontent.com/18760154/175405793-4b4c9ee6-3fd3-40fd-bfc5-810156f82394.png">
+</p>
+<p align="center">Figure 8. Speedup of concurrent methodologies compared to serial methodology.</p>
 
 
 ## Concurrency grade analysis
