@@ -123,7 +123,6 @@ In first place, the two concurrent methodologies were compared to serial methodo
 After making this metric work, a question that arises is, is higher speedup meaning better resourses usage? And the answer is: not necessarily. For this reason, efficiency was also measured, to check how many threads give the best efficiency, and as shown in figure 7, surprisingly the scenario with lower threads is the one with the best efficiency and it gets lower when increasing the amount of threads, this is because the growth in the speedup happens to be lower, compared to the increase in the threads quantity, so at the end speedup is unable to justify the increase in the threads number.
 
 <p align="center">
-<img width="600" src="https://user-images.githubusercontent.com/18760154/175240164-cbcdae55-9652-4e27-8514-604280e403d6.png">
+<img width="600" src="https://user-images.githubusercontent.com/18760154/175241421-41e3ad89-d047-4ff3-b278-d6067666819e.png">
 </p>
 <p align="center">Figure 6. Efficiency of concurrent solutions.</p>
-
