@@ -26,7 +26,7 @@ Inbetween all of these sanitizers, only tsan complained about the code, reason w
 
 In general, it can be told that there are no real data races, all the shared variables are thread safe, and also there is no possibility of a variable being read while written because of this same reason, a thread safe variable is partitioned per thread, so they are either reading or writing, not both.
 
-The first error is shown in the figure 1. It can be seen, since it does not return any code line, and because of the difectives telling are being under conflict (this code does not use any pthreads feature) are not directly being used by the code, it is assumed that an internal layer of OpenMP is using them and are getting conflicts. To evidence that there is not a single use of critical, pthreads or so, see the figure 3.
+The first error is shown in the figure 1 and not all the time shows up, or even shows up in different sections of the code. It can be seen, since it does not return any code line, and because of the difectives telling are being under conflict (this code does not use any pthreads feature) are not directly being used by the code, it is assumed that an internal layer of OpenMP is using them and are getting conflicts with my code. To evidence that there is not a single use of critical, pthreads or so, see the figure 3.
 
 <p align="center">
 <img width="1000" src="https://user-images.githubusercontent.com/18760154/175224215-3d9b46f3-f1a0-466d-9961-7ec2dcd4bd37.png">
