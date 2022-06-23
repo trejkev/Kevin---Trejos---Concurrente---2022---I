@@ -1,6 +1,6 @@
 # Results report
 
-Here will be listed all the results analysis from the comparison of the different results obtained from serial, concurrent with pthreads, and concurrent with OpenMP solutions.
+Here will be listed all the results analysis from the comparison of the different results obtained from serial, concurrent with pthreads, and concurrent with OpenMP solutions. The computer used is a Lenovo Ideapad 3 running an AMD Ryzen 7 processor, 8 cores total at 100% availability (no virtual machine).
 
 ## Errors disclaimer
 
