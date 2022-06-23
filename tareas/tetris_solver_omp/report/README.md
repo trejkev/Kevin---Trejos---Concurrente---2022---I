@@ -126,3 +126,5 @@ After making this metric work, a question that arises is, is higher speedup mean
 <img width="600" src="https://user-images.githubusercontent.com/18760154/175241421-41e3ad89-d047-4ff3-b278-d6067666819e.png">
 </p>
 <p align="center">Figure 6. Efficiency of concurrent solutions.</p>
+
+When comparing the times obtained from each of the approaches, it can be seen that OpenMP gives a lower elapsed time than Pthreads (but really close one eachother for every sample), and that these both give a a lower elapsed time than serial approach. Serial to concurrent is an obvious explanation, but OpenMP to Pthreads could not be the case, however, short explanation is that OpenMP is a library developed to easily deal with concurrent solutions, and probably it was optimized at the same time, reason why times obtained with OpenMP are slightly better than times obtained with Pthreads approach developed from zero, however, differences are in the order of ms, thus this is not conclusive, bet that even if performing a hypothesis test with a low confidence level.
