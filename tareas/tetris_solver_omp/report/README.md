@@ -20,6 +20,10 @@ All the four sanitizers were run:
 4. ubsan: Undefined behavior sanitizer to check conditions that may lead to undefined behaviors.
 5. memcheck: General memory error detector. Like accessing memory out of bounds, use after free, and so on.
 
-#### Sanitizer errors
+Inbetween all of these sanitizers, only tsan complained about the code, reason why only this sanitizer will be analized as part of the sanitizer results.
 
-Regarding the results from the sanitizers, only tsan gave many warnings related to race conditions, these will be analyzed in detail below.
+#### Thread Sanitizer (tsan) errors
+
+To limit the amount of warnings shown by the sanitizer only 2 threads were run.
+
+
