@@ -160,6 +160,16 @@ In regards to speedup of OpenMP against Pthreads, since OpenMP introduced privat
 </p>
 <p align="center">Figure 6. Speedup of OpenMP compared to Pthreads.</p>
 
+Because of these short differencies in speedup when increasing the quantity of threads, efficiency falls almost linearly when increasing the quantity of threads, see figure 7.
+
+<p align="center">
+<img width="600" src="https://user-images.githubusercontent.com/18760154/175401859-e3ee8c80-a689-44ae-a831-31e05f71e577.png">
+</p>
+<p align="center">Figure 7. Efficiency of OpenMP compared to Pthreads.</p>
+
+![image](https://user-images.githubusercontent.com/18760154/175401859-e3ee8c80-a689-44ae-a831-31e05f71e577.png)
+
+
 To show this extra task that OpenMP has to perform refer to figure 3 or 5, where lines from 71 to 100 are the lines for concurrency used by OpenMP approach, Pthreads runs only line 85 (skipping pthreads required methods and so).
 
 
