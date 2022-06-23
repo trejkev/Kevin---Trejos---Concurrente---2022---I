@@ -111,6 +111,39 @@ Table 3. OpenMP concurrent methodology for concurrency grade analysis.
 |          20          |     4     |      93.4250604      |
 |          20          |     4     |      93.44776767     |
 
+Table 4. 
+
+Table 5. OpenMP concurrent methodology for  optimizations analysis.
+| **Threads quantity** | **Depth** | **Elapsed time (s)** |
+|:--------------------:|:---------:|:--------------------:|
+|           4          |     4     |     134.958747658    |
+|           4          |     4     |     146.242133874    |
+|           4          |     4     |   **133.569813725**  |
+|           5          |     4     |     123.73907544     |
+|           5          |     4     |     123.721424002    |
+|           5          |     4     |   **120.693035202**  |
+|           6          |     4     |   **122.653080441**  |
+|           6          |     4     |     123.325609178    |
+|           6          |     4     |     123.407665388    |
+|           7          |     4     |   **102.170447633**  |
+|           7          |     4     |     102.326287775    |
+|           7          |     4     |     102.674394596    |
+|           8          |     4     |     102.702821678    |
+|           8          |     4     |   **100.898729436**  |
+|           8          |     4     |     102.050472357    |
+
+## Optimizations analysis
+
+For this analysis, all the different approaches were compared to eachother, however, the analysis is focused only on the relevant data found during the analysis.
+
+In regards to speedup of OpenMP against Pthreads, since OpenMP introduced private data record creation, memory assignment, and memory release, its execution is slightly slower than Pthreads approach, it can be observed in figure 6, where clearly they both are pretty close, but definitively Pthreads is a better time optimizer than OpenMP.
+
+<p align="center">
+<img width="600" src="https://user-images.githubusercontent.com/18760154/175396942-1f59a4b6-9f15-4be3-a2ec-414247bba33e.png">
+</p>
+<p align="center">Figure 6. Speedup of OpenMP compared to Pthreads.</p>
+
+
 ## Concurrency grade analysis
 
 In first place, the two concurrent methodologies were compared their multithreaded scenarios with their own one-threaded scenario, in general terms the code is the same, however, by dividing to conquer, the task of finding the best solution for the game could converge faster when using multiple threads. To demonstrate this theory, their times were calculated as shown in tables a speedup from 2.84 to 4.47 approximately was obtained, it can be confirmed in figure 6.
