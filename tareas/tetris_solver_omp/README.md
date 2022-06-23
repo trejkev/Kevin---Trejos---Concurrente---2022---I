@@ -12,6 +12,7 @@ The whole description of the problem to solve can be found on these repositories
 ## Running the code:
 
   1. Make sure you are using a computer with the following libraries and modules up and working:
+
         a. stdbool.h
         b. stdio.h
         c. stdlib.h
@@ -21,6 +22,7 @@ The whole description of the problem to solve can be found on these repositories
         g. C compiler (build-essential)
         h. C linter (cpplint)
         i. C make
+        j. libomp-dev
   2. Open a terminal pointing to where you'd like to have this project. Then clone the repo there (git clone command).
   3. Execute make command
   4. Run ./bin/tetris_solver_omp
