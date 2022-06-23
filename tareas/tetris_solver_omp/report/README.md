@@ -26,4 +26,12 @@ Inbetween all of these sanitizers, only tsan complained about the code, reason w
 
 To limit the amount of warnings shown by the sanitizer only 2 threads were run.
 
+The first error is shown in the figure 1.
+
+<p align="center">
+<img width="600" src="https://user-images.githubusercontent.com/18760154/175184268-c05d5ee3-7808-406a-9516-353597dc8874.png">
+</p>
+<p align="center">Figure 1. First error from tsan, race condition.</p>
+
+
 
