@@ -1,6 +1,6 @@
 # Results report
 
-Here will be listed all the results analysis from the comparison of the different results obtained from serial, concurrent with pthreads, and concurrent with OpenMP solutions. The computer used is a Lenovo Ideapad 3 running an AMD Ryzen 7 processor, 8 cores total at 100% availability (no virtual machine).
+Here will be listed all the results analysis by comparing the different results obtained from serial, concurrent with pthreads, and concurrent with OpenMP solutions. The computer used is a Lenovo Ideapad 3 running an AMD Ryzen 7 processor, 8 cores totaling 100% availability (no virtual machine).
 
 ## Errors disclaimer
 
@@ -8,7 +8,7 @@ When the programming from pthreads approach was adapted to OpenMP usage, some is
 
 ### OpenMP dificulties
 
-Private data usage for OpenMP is different to the approach taken with pthreads approach, everything that is passed to parallel pragmas as private must be reassigned, and this is because of the internal directives of OpenMP. So, to avoid dealing with this issue, private data inserted to parallel pragmas was avoided, instead private data records were created, used, and deleted into the parallel pragma, and the values from these records needed out of this pragma were passed through a shared variable thread safe (each thread has its own memory portion, so that all of them can write the variable at a time without any problem).
+Private data usage for OpenMP is different from the approach taken with pthreads approach, everything that is passed to parallel pragmas as private must be reassigned, and this is because of the internal directives of OpenMP. So, to avoid dealing with this issue, private data inserted into parallel pragmas was avoided, instead, private data records were created, used, and deleted into the parallel pragma, and the values from these records needed out of this pragma were passed through a shared variable thread-safe (each thread has its own memory portion, so that all of them can write the variable at a time without any problem).
 
 ### Sanitizer results
 
@@ -20,13 +20,13 @@ All the four sanitizers were run:
 4. ubsan: Undefined behavior sanitizer to check conditions that may lead to undefined behaviors.
 5. memcheck: General memory error detector. Like accessing memory out of bounds, use after free, and so on.
 
-Inbetween all of these sanitizers, only tsan complained about the code, reason why only this sanitizer will be analized as part of the sanitizer results.
+In between all of these sanitizers, only tsan complained about the code, reason why only this sanitizer will be analyzed as part of the sanitizer results.
 
 #### Thread Sanitizer (tsan) errors
 
-In general, it can be told that there are no real data races, all the shared variables are thread safe, and also there is no possibility of a variable being read while written because of this same reason, a thread safe variable is partitioned per thread, so they are either reading or writing, not both.
+In general, it can be told that there are no real data races, all the shared variables are thread-safe, and also there is no possibility of a variable being read while written because of this same reason, a thread-safe variable is partitioned per thread, so they are either reading or writing, not both.
 
-The first error is shown in the figure 1 and not all the time shows up, shows up in different sections of the code, and even complains with different threads. It can be seen, since it does not return any code line, and because of the difectives telling are being under conflict (this code does not use any pthreads feature) are not directly being used by the code, it is assumed that an internal layer of OpenMP is using them and are getting conflicts with my code. To evidence that there is not a single use of critical, pthreads or so, see the figure 3. Real second error is reporting the same logs but with different threads.
+The first error is shown in figure 1 and not all the time shows up, shows up in different sections of the code, and even complains about different threads. It can be seen, since it does not return any code line, and because the directives telling are being under conflict (this code does not use any pthreads feature) are not directly being used by the code, it is assumed that an internal layer of OpenMP is using them and are getting conflicts with my code. To evidence that there is not a single use of critical, pthreads or so, see figure 3. The real second error is reporting the same logs but with different threads.
 
 <p align="center">
 <img width="1000" src="https://user-images.githubusercontent.com/18760154/175224215-3d9b46f3-f1a0-466d-9961-7ec2dcd4bd37.png">
@@ -34,21 +34,21 @@ The first error is shown in the figure 1 and not all the time shows up, shows up
 <p align="center">Figure 1. First error from tsan, race condition.</p>
 
 
-The second error is shown in the figure 2. It comes right after elapsed time calculation, which is out of the parallel zone. However, getting deeper in analysis of the warning, it can be seen that the complain of the sanitizer is because there is a read at line 118 that could be crashing with a write of the same variable at line 88.
+The second error is shown in figure 2. It comes right after elapsed time calculation, which is out of the parallel zone. However, getting deeper into the analysis of the warning, it can be seen that the complaint about the sanitizer is because there is a read at line 118 that could be crashing with a write of the same variable at line 88.
 
 <p align="center">
 <img width="1000" src="https://user-images.githubusercontent.com/18760154/175184746-e3ce4c0e-33c3-44f2-bdef-41842309cc1c.png">
 </p>
 <p align="center">Figure 2. Second error from tsan, race condition.</p>
 
-Since pragma parallel internally implements a joint feature, so that no thread can continue until all threads get to the end of the parallel section, which is between lines 71 and 100, there is no way in which the write at line 88 can affect the read at line 118. It can be seen in the figure 3.
+Since pragma parallel internally implements a joint feature, so that no thread can continue until all threads get to the end of the parallel section, which is between lines 71 and 100, there is no way in which the write at line 88 can affect the read at line 118. It can be seen in figure 3.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/175185976-733b4796-2383-4239-bbb1-1a447102f448.png">
 </p>
 <p align="center">Figure 3. Code sample for demonstration of no rw data race in warning 2.</p>
 
-The third, and last warning, is about a data race being generated by the memory release instruction for all_private_data record, and the writing into the parallel method of this record. Since free command is executed many lines after parallel section is executed, and since OpenMP internally implements a threads joint condition to stop the threads until all the threads complete the parallel method, it is impossible for this condition to happen. See for reference of the warning the figure 4, and the figure 5 for reference of the code.
+The third, and last warning, is about a data race being generated by the memory release instruction for all_private_data record, and the writing into the parallel method of this record. Since the free command is executed many lines after the parallel section is executed, and since OpenMP internally implements a threads joint condition to stop the threads until all the threads complete the parallel method, it is impossible for this condition to happen. See for reference the warning in figure 4, and figure 5 for referencing the code.
 
 <p align="center">
 <img width="1000" src="https://user-images.githubusercontent.com/18760154/175228324-eb0fa763-ed39-4c8e-a315-74a00994de44.png">
@@ -62,9 +62,9 @@ The third, and last warning, is about a data race being generated by the memory 
 
 ## Data used
 
-The data used corresponds to 15 different runs performed for the concurrent methodologies, and 3 for the serial methodology. For real there are only 5 measurements, the case is that 3 replicas were executed to take from each of the replicas the one with the lower elapsed time, so at the end only 5 measurements from each methodology will be taken into consideration.
+The data used corresponds to 15 different runs performed for the concurrent methodologies, and 3 for the serial methodology. For real there are only 5 measurements, the case is that 3 replicas were executed to take from each of the replicas the one with the lower elapsed time, so in the end, only 5 measurements from each methodology will be taken into consideration.
 
-The tables containing the data are 1 for serial, 2 for pthreads, and 3 for OpenMP to compare the concurrency, data points to be used are bolded in these tables. Original dataset can be found in this file: https://github.com/trejkev/Kevin-Trejos-Concurrente-2022-I/blob/main/tareas/tetris_solver_omp/report/Results%20data.ods
+The tables containing the data are 1 for serial, 2 for pthreads, and 3 for OpenMP to compare the concurrency, data points to be used are bolded in these tables. The original dataset can be found in this file: https://github.com/trejkev/Kevin-Trejos-Concurrente-2022-I/blob/main/tareas/tetris_solver_omp/report/Results%20data.ods
 
 Table 1. Serial methodology data.
 | **Depth** | **Elapsed time (s)** |
@@ -152,16 +152,16 @@ Table 5. OpenMP concurrent methodology for optimizations analysis.
 ## Optimizations analysis
 
 ### Concurrent methodologies comparison
-For this analysis, all the different approaches were compared to eachother, however, the analysis is focused only on the relevant data found during the analysis.
+For this analysis, all the different approaches were compared to each other, however, the analysis is focused only on the relevant data found during the analysis.
 
-In regards to speedup of OpenMP against Pthreads, since OpenMP introduced private data record creation, memory assignment, and memory release, its execution is slightly slower than Pthreads approach, it can be observed in figure 6, where clearly they both are pretty close, but definitively Pthreads is a better time optimizer than OpenMP.
+In regards to the speedup of OpenMP against Pthreads, since OpenMP introduced private data record creation, memory assignment, and memory release, its execution is slightly slower than the pthreads approach, it can be observed in figure 6, where clearly they both are pretty close, but definitively Pthreads is a better time optimizer than OpenMP.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/175396942-1f59a4b6-9f15-4be3-a2ec-414247bba33e.png">
 </p>
 <p align="center">Figure 6. Speedup of OpenMP compared to Pthreads.</p>
 
-Because of these short differencies in speedup when increasing the quantity of threads, efficiency falls almost linearly when increasing the quantity of threads, see figure 7.
+Because of these short differences in speedup when increasing the number of threads, efficiency falls almost linearly when increasing the number of threads, see figure 7.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/175401859-e3ee8c80-a689-44ae-a831-31e05f71e577.png">
@@ -179,7 +179,7 @@ Regarding serial to concurrent comparison, the data analysis focused on speedup 
 </p>
 <p align="center">Figure 8. Speedup of concurrent methodologies compared to serial methodology.</p>
 
-To analyze the efficiency see the figure 9, where it is visually demonstrated that speedup does not justifies threads quantity, which means that with increased threads, even when speedup grows, the quantity of threads does not justify the speed increase.
+To analyze the efficiency see figure 9, where it is visually demonstrated that speedup does not justify threads quantity, which means that with increased threads, even when speedup grows, the quantity of threads does not justify the speed increase.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/175407836-709cafea-091e-4ed1-8061-9005705fe121.png">
@@ -189,20 +189,31 @@ To analyze the efficiency see the figure 9, where it is visually demonstrated th
 
 ## Concurrency grade analysis
 
-In first place, the two concurrent methodologies were compared their multithreaded scenarios with their own one-threaded scenario, in general terms the code is the same, however, by dividing to conquer, the task of finding the best solution for the game could converge faster when using multiple threads. To demonstrate this theory, their times were calculated as shown in tables a speedup from 2.84 to 4.47 approximately was obtained, it can be confirmed in figure 10.
+In the first place, the two concurrent methodologies compared their multithreaded scenarios with their own one-threaded scenario, in general terms the code is the same, however, by dividing to conquer, the task of finding the best solution for the game could converge faster when using multiple threads. To demonstrate this theory, their times were calculated as shown in tables a speedup from 2.84 to 4.47 approximately was obtained, it can be confirmed in figure 10. From this figure, it can be seen that Amdahl law is becoming evident, since the speedup seems to be limited at about 4.5, since all the last three measurements were stuck just below this value.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/175379446-4bb82eda-0741-4996-a821-f5966ab8c683.png">
 </p>
 <p align="center">Figure 10. Speedup of multithreaded solutions vs one-threaded solution.</p>
 
-After making this metric work, a question that arises is, is higher speedup meaning better resourses usage? And the answer is: not necessarily. For this reason, efficiency was also measured, to check how many threads give the best efficiency, and as shown in figure 11, surprisingly the scenario with lower threads is the one with the best efficiency and it gets lower when increasing the amount of threads, this is because the growth in the speedup happens to be lower, compared to the increase in the threads quantity, so at the end speedup is unable to justify the increase in the threads number.
+After making this metric work, a question that arises is, does higher speedup means better resources usage? And the answer is: not necessarily. For this reason, efficiency was also measured, to check how many threads give the best efficiency, and as shown in figure 11, surprisingly the scenario with lower threads is the one with the best efficiency and it gets lower when increasing the number of threads, this is because the growth in the speedup happens to be lower, compared to the increase in the threads quantity, so at the end speedup is unable to justify the increase in the threads number.
 
 <p align="center">
 <img width="600" src="https://user-images.githubusercontent.com/18760154/175379715-2aa76cd8-fa08-4375-bc0c-75232dd19d44.png">
 </p>
 <p align="center">Figure 11. Efficiency of concurrent solutions.</p>
 
-As shown in figures 10 and 11, OpenMP happens to show a lower speedup and lower efficiency than pthreads approach. This is probably because OpenMP forced the code to declare, assign, and delete private data into parallel section, while Pthreads approach, because of its lower limitations in private data management, does not have these tasks into parallel section.
+As shown in figures 10 and 11, OpenMP happens to show a lower speedup and lower efficiency than pthreads approach. This is probably because OpenMP forced the code to declare, assign, and delete private data into the parallel section, while the pthreads approach, because of its lower limitations in private data management, does not have these tasks in the parallel section.
 
-When comparing the times obtained from both of the approaches, it can be seen that OpenMP gives a lower elapsed time than Pthreads (but really close one eachother for every sample), and that these both give a a lower elapsed time than serial approach. Serial to concurrent is an obvious explanation, but OpenMP to Pthreads could not be the case, however, short explanation is that OpenMP is a library developed to easily deal with concurrent solutions, and probably it was optimized at the same time, reason why times obtained with OpenMP are slightly better than times obtained with Pthreads approach developed from zero, however, differences are in the order of ms, thus this is not conclusive, bet that even if performing a hypothesis test with a low confidence level.
+When comparing the times obtained from both of the approaches, it can be seen that OpenMP gives a lower elapsed time than pthreads (but really close to each other for every sample), and that these both give a lower elapsed time than the serial approach. Serial to concurrent is an obvious explanation, but OpenMP to pthreads could not be the case, however, the short explanation is that OpenMP is a library developed to easily deal with concurrent solutions, and probably it was optimized at the same time, reason why times obtained with OpenMP are slightly better than times obtained with Pthreads approach, developed from zero, however, differences are in the order of ms, thus this is not conclusive, bet that even if performing a hypothesis test with a low confidence level.
+
+## Bonus analysis: Amdahl's law confirmation
+
+To confirm Amdahl's law it was necessary to go beyond the homework specifications, a total of 60 measurements were taken, going from zero to 20 threads, with three replicas for each of them, and taking into consideration only the shortest measurement between each sub group, the behavior obtained was a potential upper bound at about 5.25, which means that no matter how many threads we create, our maximum possible speedup should be rounding 5.25.
+
+<p align="center">
+<img width="600" src="https://user-images.githubusercontent.com/18760154/177253657-9c54a2d3-440a-45eb-9ffb-4ba1b671c0aa.png">
+</p>
+<p align="center">Figure 12. Amdahl's law confirmation plot.</p>
+
+The curve behavior can stun the reader, since it does not present the slender curve tending to get plane when threads limit goes to infinite, however, it must be taken into consideration that, since this programming is using block mapping, with specific scenarios some threads might be overloaded, thus converging in a lower speedup, and also, the computers are not strictly focused on having done the tetris code, many other tasks are undergoing, these might be using the cores too, and may generate time delays and variations between the different scenarios.
