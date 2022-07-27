@@ -103,7 +103,7 @@ int main(int argc, char** args) {
         double finish_time = omp_get_wtime();
 
         double elapsed = finish_time - start_time;
-        int *message = 0;
+        int message = 900;
         if (rank == 0) {
             printf("DEBUG: Elapsed time is: %f s\n", elapsed);
         }
@@ -112,89 +112,78 @@ int main(int argc, char** args) {
             if (rank == 0) {
                 for (int iRank = 1; iRank < process_count; ++ iRank) {
                     MPI_Send(&message, 1, MPI_INT, iRank, 0, MPI_COMM_WORLD);
-                    // std::cout << "I am here 1" << "\n";
                     MPI_Recv(&message, 1, MPI_INT, iRank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    std::cout << "Best score from " << iRank << " is " << message << "\n";
-                    if (*message > all_private_data->best_score) {
+                    std::cout << "Best score from " << iRank << " is " << message << " end \n";
+                    if (message < all_private_data->best_score) {
                         BSRank = iRank;
-                        std::cout << "HOLA" << "\n";
                     }
                 }
             } else {
                 MPI_Recv(&message, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                // std::cout << "I am here 2" << "\n";
-                // *message = *all_private_data->best_score;
-                // *message = all_private_data->best_score;
-                // std::cout << "I am here 3" << "\n";
                 MPI_Send(&all_private_data->best_score , 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-                // std::cout << "I am here 4" << "\n";
             }
         }
-        std::cout << "Best score rank is " << BSRank << "\n";
-
-        // -- Save times from this scenario
-        FILE *fptr2;
-        fptr2 = fopen("test/times_depth.csv", "a");
-        fprintf(fptr2, "%zu;%i;%.9lf;\n", thread_qty, matrix->depth, elapsed);
-        fclose(fptr2);
-
-        // -- Get which thread has the best score
-        size_t thread_with_bs = 0;  // Option to take will be always first col
-        for (size_t thread = 0; thread < thread_qty; thread++) {
-            int best_score = all_private_data[thread_with_bs].best_score;
-            if (all_private_data[thread].best_score < best_score) {
-                thread_with_bs = thread;
-            }
+        MPI_Barrier(MPI_COMM_WORLD);
+        if (rank == 0) {
+            std::cout << "Best score rank is " << BSRank << "\n";
+            // -- Save times from this scenario
+            FILE *fptr2;
+            fptr2 = fopen("test/times_depth.csv", "a");
+            fprintf(fptr2, "%zu;%i;%.9lf;\n", thread_qty, matrix->depth, elapsed);
+            fclose(fptr2);
         }
-        printf("DEBUG: Thread with best score is %zu\n", thread_with_bs);
-        printf("DEBUG: Best score is %i\n",
-            all_private_data[thread_with_bs].best_score);
+        MPI_Barrier(MPI_COMM_WORLD);
+        
+        if (rank == BSRank) {
 
-        // -- Print the basegame
-        printf("\n\nDEBUG: Basegame\n");
-        for (int row = 0; row < 10; row++) {
-            printf("DEBUG: %i  %s\n", row, matrix->gamezone[row]);
-        }
-        for (int row = 10; row < matrix->gamezone_num_rows; row++) {
-            printf("DEBUG: %i %s\n", row, matrix->gamezone[row]);
-        }
-        printf("\n\n");
+            printf("DEBUG: Best score is %i\n", all_private_data->best_score);
 
-        // -- Print the best games
-        for (int depth = 0; depth <= matrix->depth; depth++) {
-            printf("DEBUG: Best game level %i\n", depth);
+            // -- Print the basegame
+            printf("\n\nDEBUG: Basegame\n");
             for (int row = 0; row < 10; row++) {
-                printf("DEBUG: %i  %s\n", row, shared_data->
-                    bg_matrix[thread_with_bs*(matrix->depth+1) + depth]->
-                    gamezone[row]);
+                printf("DEBUG: %i  %s\n", row, matrix->gamezone[row]);
             }
             for (int row = 10; row < matrix->gamezone_num_rows; row++) {
-                printf("DEBUG: %i %s\n", row, shared_data->
-                    bg_matrix[thread_with_bs*(matrix->depth+1) + depth]->
-                    gamezone[row]);
+                printf("DEBUG: %i %s\n", row, matrix->gamezone[row]);
             }
             printf("\n\n");
-        }
 
-        // -- Saves the best games into files
-        for (int level = 0; level <= matrix->depth; level++) {
-            char game_result_path[24];
-            snprintf(game_result_path, sizeof(game_result_path), "%s%d%s",
-                "test/tetris_play_", level, ".txt");
-            FILE *fptr3;
-            fptr3 = fopen(game_result_path, "w");
-            // Check if  file opened correctly
-            if (!fptr3) {
-                fprintf(stderr, "DEBUG: Invalid file \n");
-                return EXIT_FAILURE;
-            } else {
-                printf("DEBUG: File %s opened\n", game_result_path);
+            // -- Print the best games
+            for (int depth = 0; depth <= matrix->depth; depth++) {
+                printf("DEBUG: Best game level %i\n", depth);
+                for (int row = 0; row < 10; row++) {
+                    printf("DEBUG: %i  %s\n", row, shared_data->
+                        bg_matrix[(matrix->depth+1) + depth]->gamezone[row]);
+                }
+                for (int row = 10; row < matrix->gamezone_num_rows; row++) {
+                    printf("DEBUG: %i %s\n", row, shared_data->
+                        bg_matrix[(matrix->depth+1) + depth]->
+                        gamezone[row]);
+                }
+                printf("\n\n");
             }
-            printf("DEBUG: Saving game %i\n", level);
-            int offset = thread_with_bs*(matrix->depth + 1);
-            write_bestgame(fptr3, shared_data->bg_matrix[offset + level]);
-            fclose(fptr3);
+
+            // -- Saves the best games into files
+            for (int level = 0; level <= matrix->depth; level++) {
+                char game_result_path[24];
+                snprintf(game_result_path, sizeof(game_result_path), "%s%d%s",
+                    "test/tetris_play_", level, ".txt");
+                FILE *fptr3;
+                fptr3 = fopen(game_result_path, "w");
+                // Check if  file opened correctly
+                if (!fptr3) {
+                    fprintf(stderr, "DEBUG: Invalid file \n");
+                    return EXIT_FAILURE;
+                } else {
+                    printf("DEBUG: File %s opened\n", game_result_path);
+                }
+                printf("DEBUG: Saving game %i\n", level);
+                int offset = (matrix->depth + 1);
+                write_bestgame(fptr3, shared_data->bg_matrix[offset + level]);
+                fclose(fptr3);
+            }
         }
+        MPI_Barrier(MPI_COMM_WORLD);
 
 
         // -- Destroy shared data
@@ -203,15 +192,15 @@ int main(int argc, char** args) {
             destroy_matrix(best_game[i], matrix->gamezone_num_rows);
         }
         free(shared_data);
-        printf("\n\nDEBUG: Destroyed shared data\n");
+        printf("\n\nDEBUG: Destroyed shared data rank %i\n", rank);
 
         // -- Destroy private data out of parallel section
         free(all_private_data);
-        printf("DEBUG: Destroyed private data out of parallel section\n");
+        printf("DEBUG: Destroyed private data out of parallel section rank %i\n", rank);
 
         // -- Destroy initial game
         destroy_matrix(matrix, matrix->gamezone_num_rows);
-        printf("DEBUG: Destroyed initial game state\n");
+        printf("DEBUG: Destroyed initial game state rank %i\n", rank);
 
         MPI_Finalize();
     }
