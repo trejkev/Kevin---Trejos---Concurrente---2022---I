@@ -299,7 +299,7 @@ void* run_processes(int actual_rank, game_t *matrix,
                 private_data_t* private_data;
                 private_data = reinterpret_cast<private_data_t*>
                     (calloc(1, sizeof(private_data_t)));
-                private_data->basegame = game_cloner(matrix);
+                private_data->basegame = game_cloner(clone);
                 // private_data->basegame = clone;
                 private_data->best_score = matrix->gamezone_num_rows;
                 private_data->num_threads = thread_qty;
@@ -317,7 +317,7 @@ void* run_processes(int actual_rank, game_t *matrix,
                             latest_best_score = private_data->best_score;
                             best_game_saver(
                                 private_data->shared_data->bg_matrix,
-                                clone, 0,
+                                private_data->basegame, 0,
                                 private_data->save_best_game,
                                 private_data->thread_num);
                             all_private_data->best_score =
@@ -330,7 +330,10 @@ void* run_processes(int actual_rank, game_t *matrix,
                     }
                 }
                 if (row != -1) {
-                    figure_remover(clone, figure, col, row, rot);
+                    figure_remover(private_data->basegame,
+                        figure, col, row, rot);
+                    figure_remover(clone,
+                        figure, col, row, rot);
                 }
 
                 // -- Destroy private data
