@@ -1,0 +1,77 @@
+run (pd) {
+    // Clone the game entered
+    clone = cloner(pd->basegame)
+
+    // Compute init and end position
+    init = as per block mapping init
+    end = as per block mapping init
+
+    for (column in range between init and end) {
+        Get the figure and its rotations
+        for (all figure rotations) {
+            Place the figure into clone gamezone
+            find_best_score(clone and all relevant info)
+            if (this game pertains to best game chain) {
+                Save the game in the best game record for this thread
+            }
+            Remove the figure from clone gamezone
+        }
+    }
+    destroy the clone
+}
+
+find_best_score (game and all relevant info) {
+    // Clone the game entered
+    clone = cloner(game)
+
+    if (this level is major than depth) {
+        Calc the score
+        if (score is better than latest) {
+            save the score as best score
+            Send a flag to upper levels to save their games
+        }
+    } else if (this level is minor or equal to depth) {
+        for (column in range) {
+        Get the figure and its rotations
+        for (all figure rotations) {
+            Place the figure into clone gamezone
+            find_best_score(clone and all relevant info)
+            if (this game pertains to best game chain) {
+                Save the game in the best game record for this thread
+            }
+            Remove the figure from clone gamezone
+        }
+    }
+    }
+    destroy the clone
+}
+
+main () {
+    get threads quantity
+
+    Read and save test file data into a game record
+
+    if (thread quantity is greater than columns amount) {
+        Set threads quantity to cols amount
+    }
+
+    Create best game record as shared data
+
+    Create private data record for each thread
+
+    Execute multithreading stuff through run method
+
+    Wait for all threads to complete
+
+    Get the thread containing the best score
+
+    Save the best game into test/tetris_play_x.txt files
+
+    Destroy shared data record
+    
+    Destroy private data record
+
+    Destroy threads
+    
+    Destroy initial game record
+}
