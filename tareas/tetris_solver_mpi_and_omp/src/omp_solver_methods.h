@@ -142,9 +142,18 @@ int block_finish(size_t i, int D, size_t w);
  * @param data Private data record for the thread.
  *
  */
-// void* run_threads(void *params);
 void* run_threads(private_data_t *data);
 
+/**
+ * @brief Method to run the processes for data parallelization.
+ * @param actual_rank Actual process number.
+ * @param matrix Base game matrix.
+ * @param shared_data Shared data record.
+ * @param thread_qty Quantity of threads to be used.
+ * @param processes_qty Quantity of processes to be used.
+ * @param all_private_data Private data record for all the threads.
+ *
+ */
 void* run_processes(int actual_rank, game_t *matrix,
     shared_data_t *shared_data, size_t thread_qty,
     size_t processes_qty, private_data_t *all_private_data);

@@ -312,12 +312,12 @@ void* run_processes(int actual_rank, game_t *matrix,
                 run_threads(&private_data[0]);
                 #pragma omp critical
                 {
-                    if (private_data->save_best_game[current_level] == true) {
+                    if (private_data->save_best_game[0] == true) {
                         if (private_data->best_score < latest_best_score) {
-                            // latest_best_score = private_data->best_score;
+                            latest_best_score = private_data->best_score;
                             best_game_saver(
                                 private_data->shared_data->bg_matrix,
-                                private_data->basegame, current_level,
+                                clone, 0,
                                 private_data->save_best_game,
                                 private_data->thread_num);
                             all_private_data->best_score =
@@ -328,11 +328,6 @@ void* run_processes(int actual_rank, game_t *matrix,
                             private_data->save_best_game[current_level] = false;
                         }
                     }
-                    // all_private_data->best_score =
-                    // private_data->best_score;
-                    // all_private_data->thread_num = private_data->thread_num;
-                    // all_private_data->save_best_game =
-                    // private_data->save_best_game;
                 }
                 if (row != -1) {
                     figure_remover(clone, figure, col, row, rot);
