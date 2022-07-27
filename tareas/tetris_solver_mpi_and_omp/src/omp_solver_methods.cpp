@@ -141,10 +141,12 @@ void figure_remover(game_t* matrix, char letter, int x_position,
 ////////////////////////////////////////////////////////////////////////////////
 game_t* game_cloner(game_t* matrix) {
     // Getting memory space for the clone
-    game_t* clone = (game_t*)calloc(1, sizeof(game_t));
-    clone->gamezone = (char**)create_matrix_value(matrix->gamezone_num_rows,
-        matrix->gamezone_num_cols + 1, sizeof(char));
-    clone->figures = (char*) calloc(matrix->num_figures, sizeof(char));
+    game_t* clone = reinterpret_cast<game_t*>(calloc(1, sizeof(game_t)));
+    clone->gamezone = reinterpret_cast<char**>
+        (create_matrix_value(matrix->gamezone_num_rows,
+        matrix->gamezone_num_cols + 1, sizeof(char)));
+    clone->figures = reinterpret_cast<char*>
+        (calloc(matrix->num_figures, sizeof(char)));
 
     // Cloning the values
     clone->id = matrix->id;
@@ -269,10 +271,11 @@ int block_finish(size_t i, int D, size_t w) {
 ////////////////////////////////////////////////////////////////////////////////
 void* run_processes(int actual_rank, game_t *matrix,
     shared_data_t *shared_data, size_t thread_qty,
-    size_t processes_qty, private_data_t *all_private_data){
+    size_t processes_qty, private_data_t *all_private_data) {
     // -- Best game lookup level zero extracted
     int current_level = 0;
     game_t* clone = game_cloner(matrix);
+    int latest_best_score = matrix->gamezone_num_rows;
 
     // -- Blocks mapping computing
     int init = block_start(actual_rank,
@@ -289,37 +292,47 @@ void* run_processes(int actual_rank, game_t *matrix,
         for (int rot = 0; rot < num_rotations; rot++) {
             int row = figure_allocator(clone, figure, col, rot);
             #pragma omp parallel num_threads(thread_qty) \
-            shared(shared_data, clone, thread_qty, all_private_data, matrix,\
-            current_level, row, rot, col, figure) \
+            shared(shared_data, clone, thread_qty, all_private_data, matrix, \
+            current_level, row, rot, col, figure, latest_best_score) \
             default(none)
-            {    
+            {
                 private_data_t* private_data;
-                private_data = (private_data_t*)calloc(1, sizeof(private_data_t));
+                private_data = reinterpret_cast<private_data_t*>
+                    (calloc(1, sizeof(private_data_t)));
                 private_data->basegame = game_cloner(matrix);
+                // private_data->basegame = clone;
                 private_data->best_score = matrix->gamezone_num_rows;
                 private_data->num_threads = thread_qty;
                 private_data->thread_num = omp_get_thread_num();
                 private_data->shared_data = shared_data;
                 private_data->save_best_game =
-                    (bool*)calloc(matrix->depth + 1, sizeof(bool));
+                    reinterpret_cast<bool*>
+                    (calloc(matrix->depth + 1, sizeof(bool)));
 
-                run_threads(&private_data[0]); // llamar al find best score level 0, que este sea el que llama al run threads en el else de si es mas profundo
-
-            // }
-                // if (data->save_best_game[current_level] == true) {
-                //     best_game_saver(data->shared_data->bg_matrix, clone,
-                //     current_level, data->save_best_game, data->thread_num);
+                run_threads(&private_data[0]);
                 #pragma omp critical
                 {
-                if (private_data->save_best_game[current_level] == true) {
-                    best_game_saver(private_data->shared_data->bg_matrix, clone,
-                    current_level, private_data->save_best_game,
-                    private_data->thread_num);
-                    // Not critical because it is thread safe
-                    all_private_data->best_score = private_data->best_score;
-                    all_private_data->thread_num = private_data->thread_num;
-                    all_private_data->save_best_game = private_data->save_best_game;
-                }
+                    if (private_data->save_best_game[current_level] == true) {
+                        if (private_data->best_score < latest_best_score) {
+                            // latest_best_score = private_data->best_score;
+                            best_game_saver(
+                                private_data->shared_data->bg_matrix,
+                                private_data->basegame, current_level,
+                                private_data->save_best_game,
+                                private_data->thread_num);
+                            all_private_data->best_score =
+                                private_data->best_score;
+                            all_private_data->thread_num =
+                                private_data->thread_num;
+                        } else {
+                            private_data->save_best_game[current_level] = false;
+                        }
+                    }
+                    // all_private_data->best_score =
+                    // private_data->best_score;
+                    // all_private_data->thread_num = private_data->thread_num;
+                    // all_private_data->save_best_game =
+                    // private_data->save_best_game;
                 }
                 if (row != -1) {
                     figure_remover(clone, figure, col, row, rot);
@@ -330,8 +343,6 @@ void* run_processes(int actual_rank, game_t *matrix,
                     matrix->gamezone_num_rows);
                 free(private_data->save_best_game);
                 free(private_data);
-                // printf("DEBUG: Destroyed private data for thread %i, col %i, rot %i \n",
-                // omp_get_thread_num(), col, rot);
             }
         }
     }

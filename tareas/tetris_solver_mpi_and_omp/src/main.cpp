@@ -13,31 +13,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** args) {
-
     // -- set the amount of processes to be used
     size_t processes_qty = 1;
-    // if (argc >= 2) {
-    //     sscanf(args[1], "%zu", &processes_qty);
-        // if (sscanf(args[1], "%zu", &processes_qty) != 0 || errno) {
-    //     if (sscanf(args[1], "%zu", &processes_qty) != 0 || errno) {
-    //         fprintf(stderr, "Invalid number of processes.\n");
-    //         return EXIT_FAILURE;
-    //     }
-    // } else {
-    //     processes_qty = 1;
-    // }
-    // // printf("DEBUG: Processes qty is %zu\n", processes_qty);
 
     // -- Set the amount of threads to be used
     size_t thread_qty = 1;
     if (argc >= 2) {
         sscanf(args[1], "%zu", &thread_qty);
-    //     if (sscanf(args[2], "%zu", &thread_qty) != 1 || errno) {
-    //         fprintf(stderr, "Invalid number of threads.\n");
-    //         return EXIT_FAILURE;
-    //     }
-    // } else {
-    //     thread_qty = sysconf(_SC_NPROCESSORS_ONLN);
     }
     printf("DEBUG: Threads qty is %zu\n", thread_qty);
 
@@ -59,7 +41,7 @@ int main(int argc, char** args) {
     }
 
     // -- Redefine max threads if greater than maximum needed threads
-    if (thread_qty > (size_t)matrix->gamezone_num_cols) {
+    if (thread_qty > static_cast<size_t>(matrix->gamezone_num_cols)) {
         thread_qty = matrix->gamezone_num_cols;
         printf("DEBUG: Thread reduced to its max value: %zu\n", thread_qty);
     }
@@ -70,15 +52,16 @@ int main(int argc, char** args) {
     game_t* best_game[thread_qty*(matrix->depth + 1) + matrix->depth];
     for (size_t i = 0;
         i < (thread_qty*(matrix->depth + 1) + matrix->depth); i++) {
-        best_game[i] = (game_t*)calloc(1, sizeof(game_t));
+        best_game[i] = reinterpret_cast<game_t*>(calloc(1, sizeof(game_t)));
         best_game[i]->gamezone =
-            (char**)create_matrix_value(matrix->gamezone_num_rows,
-            matrix->gamezone_num_cols + 1, sizeof(char));
+            reinterpret_cast<char**>
+            (create_matrix_value(matrix->gamezone_num_rows,
+            matrix->gamezone_num_cols + 1, sizeof(char)));
         best_game[i]->figures =
-            (char*)calloc(matrix->num_figures, sizeof(char));
+            reinterpret_cast<char*>(calloc(matrix->num_figures, sizeof(char)));
     }
     shared_data_t* shared_data =
-        (shared_data_t*)calloc(1, sizeof(shared_data_t));
+        reinterpret_cast<shared_data_t*>(calloc(1, sizeof(shared_data_t)));
     shared_data->bg_matrix = best_game;
 
     double start_time = omp_get_wtime();
@@ -90,8 +73,9 @@ int main(int argc, char** args) {
         int process_count = -1;
         MPI_Comm_size(MPI_COMM_WORLD, &process_count);
         // -- Private data for each thread out of parallel section
-        private_data_t* all_private_data = (private_data_t*)calloc(
-        1, sizeof(private_data_t));
+        private_data_t* all_private_data =
+            reinterpret_cast<private_data_t*>(calloc(
+            1, sizeof(private_data_t)));
         if (rank == 0) {
             std::cout << "Amount of processes is " << process_count << "\n";
         }
@@ -110,17 +94,21 @@ int main(int argc, char** args) {
         int BSRank = 0;
         if (process_count > 1) {
             if (rank == 0) {
-                for (int iRank = 1; iRank < process_count; ++ iRank) {
+                for (int iRank = 1; iRank < process_count; ++iRank) {
                     MPI_Send(&message, 1, MPI_INT, iRank, 0, MPI_COMM_WORLD);
-                    MPI_Recv(&message, 1, MPI_INT, iRank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    std::cout << "Best score from " << iRank << " is " << message << " end \n";
+                    MPI_Recv(&message, 1, MPI_INT, iRank, 0, MPI_COMM_WORLD,
+                        MPI_STATUS_IGNORE);
+                    std::cout << "Best score from " << iRank << " is " <<
+                        message << " end \n";
                     if (message < all_private_data->best_score) {
                         BSRank = iRank;
                     }
                 }
             } else {
-                MPI_Recv(&message, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                MPI_Send(&all_private_data->best_score , 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+                MPI_Recv(&message, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,
+                    MPI_STATUS_IGNORE);
+                MPI_Send(&all_private_data->best_score , 1, MPI_INT, 0, 0,
+                    MPI_COMM_WORLD);
             }
         }
         MPI_Barrier(MPI_COMM_WORLD);
@@ -129,13 +117,13 @@ int main(int argc, char** args) {
             // -- Save times from this scenario
             FILE *fptr2;
             fptr2 = fopen("test/times_depth.csv", "a");
-            fprintf(fptr2, "%zu;%i;%.9lf;\n", thread_qty, matrix->depth, elapsed);
+            fprintf(fptr2, "%zu;%i;%.9lf;\n", thread_qty, matrix->depth,
+                elapsed);
             fclose(fptr2);
         }
         MPI_Barrier(MPI_COMM_WORLD);
-        
-        if (rank == BSRank) {
 
+        if (rank == BSRank) {
             printf("DEBUG: Best score is %i\n", all_private_data->best_score);
 
             // -- Print the basegame
@@ -153,12 +141,13 @@ int main(int argc, char** args) {
                 printf("DEBUG: Best game level %i\n", depth);
                 for (int row = 0; row < 10; row++) {
                     printf("DEBUG: %i  %s\n", row, shared_data->
-                        bg_matrix[(matrix->depth+1) + depth]->gamezone[row]);
+                        bg_matrix[all_private_data->thread_num*(matrix->depth+1)
+                            + depth]->gamezone[row]);
                 }
                 for (int row = 10; row < matrix->gamezone_num_rows; row++) {
                     printf("DEBUG: %i %s\n", row, shared_data->
-                        bg_matrix[(matrix->depth+1) + depth]->
-                        gamezone[row]);
+                        bg_matrix[all_private_data->thread_num*(matrix->depth+1)
+                            + depth]->gamezone[row]);
                 }
                 printf("\n\n");
             }
@@ -196,7 +185,8 @@ int main(int argc, char** args) {
 
         // -- Destroy private data out of parallel section
         free(all_private_data);
-        printf("DEBUG: Destroyed private data out of parallel section rank %i\n", rank);
+        printf("DEBUG: Destroyed private data out of parallel section rank %i\n"
+            , rank);
 
         // -- Destroy initial game
         destroy_matrix(matrix, matrix->gamezone_num_rows);

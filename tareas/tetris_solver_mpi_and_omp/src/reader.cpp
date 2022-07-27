@@ -9,7 +9,8 @@ void free_matrix_value(const size_t row_count, void** matrix);
 
 ////////////////////////////////////////////////////////////////////////////////
 game_t* read_matrix(FILE* fptr) {
-    game_t* game = (game_t*)calloc(1, sizeof(game_t));  // Creates initial game
+    game_t* game = reinterpret_cast<game_t*>
+        (calloc(1, sizeof(game_t)));  // Creates initial game
     int program_length = 3;  // Initializes program length
     int counter = 0;
     while (counter < program_length) {
@@ -32,8 +33,9 @@ game_t* read_matrix(FILE* fptr) {
         }
         if (counter == 4) {
             game->gamezone =
-                (char**)create_matrix_value(game->gamezone_num_rows,
-                game->gamezone_num_cols + 1, sizeof(char));
+                reinterpret_cast<char**>
+                    (create_matrix_value(game->gamezone_num_rows,
+                    game->gamezone_num_cols + 1, sizeof(char)));
             for (int i = 0; i < game->gamezone_num_rows; i++) {
                 fscanf(fptr, "%s", game->gamezone[i]);  // Saves the gamezone
                 counter++;
@@ -45,7 +47,8 @@ game_t* read_matrix(FILE* fptr) {
             counter++;
         }
         if (counter == 5 + game->gamezone_num_rows) {
-            game->figures = (char*) calloc(game->num_figures, sizeof(char));
+            game->figures = reinterpret_cast<char*>
+                (calloc(game->num_figures, sizeof(char)));
             int breakline_counter = 0;
             for (int i = 0; i < game->num_figures*2; i++) {
                 if (i%2 == 0) {
@@ -66,7 +69,8 @@ game_t* read_matrix(FILE* fptr) {
 ////////////////////////////////////////////////////////////////////////////////
 void destroy_matrix(game_t* game_record, int rows_qty) {
     // Release memory used by the gamezone
-    free_matrix_value(rows_qty, (void**)game_record->gamezone);
+    free_matrix_value(rows_qty,
+        reinterpret_cast<void**>(game_record->gamezone));
     // Release memory used by the figures
     free(game_record->figures);
     // Release record
@@ -76,7 +80,7 @@ void destroy_matrix(game_t* game_record, int rows_qty) {
 ////////////////////////////////////////////////////////////////////////////////
 void** create_matrix_value(size_t row_count,
     size_t col_count, size_t element_size) {
-    void** matrix = (void**) calloc(row_count, sizeof(void*));
+    void** matrix = reinterpret_cast<void**>(calloc(row_count, sizeof(void*)));
     if ( matrix == NULL ) {
         return NULL;
     }
