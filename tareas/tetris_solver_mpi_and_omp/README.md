@@ -12,6 +12,8 @@ The whole description of the problem to solve can be found on these repositories
 
 Results analysis of the comparison can be found in this link: https://github.com/trejkev/Kevin-Trejos-Concurrente-2022-I/tree/main/tareas/tetris_solver_omp/report
 
+Now that we are using a hybrid methodology, depth 0 is executed by processes using MPI, while depth 1 is using OpenMP, both with block mapping.
+
 ## Running the code:
 
   1. Make sure you are using a computer with the following libraries and modules up and working:
