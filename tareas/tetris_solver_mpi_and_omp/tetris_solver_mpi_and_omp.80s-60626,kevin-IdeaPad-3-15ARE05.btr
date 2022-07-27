@@ -1,6 +1,0 @@
-
-tetris_solver_mpi_and_omp:60626 terminated with signal 11 at PC=563ae9096a9d SP=7ffc1fe98320.  Backtrace:
-./bin/tetris_solver_mpi_and_omp(+0x2a9d)[0x563ae9096a9d]
-/lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7f36d8aead90]
-/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7f36d8aeae40]
-./bin/tetris_solver_mpi_and_omp(+0x23e5)[0x563ae90963e5]
