@@ -299,8 +299,8 @@ void* run_processes(int actual_rank, game_t *matrix,
                 private_data_t* private_data;
                 private_data = reinterpret_cast<private_data_t*>
                     (calloc(1, sizeof(private_data_t)));
-                private_data->basegame = game_cloner(clone);
-                // private_data->basegame = clone;
+                // private_data->basegame = game_cloner(clone);
+                private_data->basegame = clone;
                 private_data->best_score = matrix->gamezone_num_rows;
                 private_data->num_threads = thread_qty;
                 private_data->thread_num = omp_get_thread_num();
@@ -332,13 +332,11 @@ void* run_processes(int actual_rank, game_t *matrix,
                 if (row != -1) {
                     figure_remover(private_data->basegame,
                         figure, col, row, rot);
-                    figure_remover(clone,
-                        figure, col, row, rot);
                 }
 
                 // -- Destroy private data
-                destroy_matrix(private_data->basegame,
-                    matrix->gamezone_num_rows);
+                // destroy_matrix(private_data->basegame,
+                //     matrix->gamezone_num_rows);
                 free(private_data->save_best_game);
                 free(private_data);
             }
