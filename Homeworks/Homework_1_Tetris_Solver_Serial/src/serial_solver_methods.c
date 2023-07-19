@@ -196,7 +196,7 @@ void best_game_saver(game_t** best_game, game_t* clone,
 
 ////////////////////////////////////////////////////////////////////////////////
 void write_bestgame(FILE* file_pointer, game_t* best_game) {
-    fprintf(file_pointer, "%lu", best_game->id);
+    fprintf(file_pointer, "%llu", best_game->id);
     fprintf(file_pointer, "%c", '\n');
     fprintf(file_pointer, "%i", best_game->depth);
     fprintf(file_pointer, "%c", '\n');
