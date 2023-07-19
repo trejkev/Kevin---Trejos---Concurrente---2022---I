@@ -14,7 +14,7 @@ game_t* read_matrix(FILE* fptr) {
     int counter = 0;
     while (counter < program_length) {
         if (counter == 0) {
-            fscanf(fptr, "%lu", &game->id);  // Reads and saves game ID
+            fscanf(fptr, "%llu", &game->id);  // Reads and saves game ID
             counter++;
         }
         if (counter == 1) {
