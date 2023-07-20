@@ -7,8 +7,7 @@ EXEFILE=bin/$(APPNAME)
 
 CC=cc -std=gnu11
 CFLAGS=-Wall -Wextra
-LIBS= -pthread 
-LIBS2= -lm
+LIBS= -pthread
 
 LINTFILTERS=$\
 	-build/c++11,$\
